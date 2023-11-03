@@ -1,5 +1,7 @@
-<!DOCTYPE html>
-<html>
+{% extends "base.html" %}
+
+{% block content %}
+
 <head>
     <title>Visualizar Contatos</title>
 </head>
@@ -7,11 +9,11 @@
     <h1>Lista de Contatos</h1>
 
     <!-- Tabela para exibir os contatos importados -->
-    <table>
+    <table class="table table-striped">
         <thead>
             <tr>
                 <th>Terceiro</th>
-                <th>Contato</th>
+                <th>Contacto</th>
                 <th>E-mail</th>
                 <th>Link</th>
                 <th>saldo_contabilidade</th>
@@ -47,5 +49,5 @@
         <input type="submit" value="Enviar E-mails de Confirmação de Saldo">
     </form>
 </body>
-</html>
 
+{% endblock %}
