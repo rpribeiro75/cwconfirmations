@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Visualizar Contatos</title>
+</head>
+<body>
+    <h1>Lista de Contatos</h1>
+
+    <!-- Tabela para exibir os contatos importados -->
+    <table>
+        <thead>
+            <tr>
+                <th>Terceiro</th>
+                <th>Contato</th>
+                <th>E-mail</th>
+                <th>Link</th>
+                <th>saldo_contabilidade</th>
+                <th>Saldo</th>
+                <th>Arquivo</th>
+                <th>Ações</th>
+                <!-- Outras colunas, se necessário -->
+            </tr>
+        </thead>
+        <tbody>
+            {% for registro in registros %}
+            <tr>
+                <td>{{ registro.terceiro }}</td>
+                <td>{{ registro.contacto }}</td>
+                <td>{{ registro.email }}</td>
+                <td>{{ registro.link_unico }}</td>
+                <td>{{ registro.saldo_contabilidade}}</td>
+                <td>{{ registro.saldo}}</td>
+                <td>{{ registro.arquivo}}</td>
+                <td>
+                    <a href="{% url 'editar_registro' registro.id %}">Editar</a> | 
+                    <a href="{% url 'excluir_registro' registro.id %}">Excluir</a>
+                </td>
+                <!-- Outras colunas, se necessário -->
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- Botão para enviar e-mails -->
+    <form method="post" action="{% url 'enviar_emails' %}">
+        {% csrf_token %}
+        <input type="submit" value="Enviar E-mails de Confirmação de Saldo">
+    </form>
+</body>
+</html>
+

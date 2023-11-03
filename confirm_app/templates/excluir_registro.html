@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Excluir Registro</title>
+</head>
+<body>
+    <h1>Excluir Registro</h1>
+
+    <p>Você tem certeza de que deseja excluir este registro?</p>
+
+    <form method="post">
+        {% csrf_token %}
+        <input type="submit" value="Sim, Excluir Registro">
+    </form>
+
+    <a href="{% url 'visualizar' %}">Voltar à Página de Visualização</a>
+</body>
+</html>

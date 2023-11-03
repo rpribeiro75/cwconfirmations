@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Atualizar Saldo</title>
+</head>
+<body>
+    <h1>Atualizar Saldo</h1>
+    <p>Olá {{ registro.terceiro }},</p>
+    <p>Para confirmar a atualização de saldo, preencha o formulário abaixo:</p>
+
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.as_p }}
+
+        <input type="submit" value="Enviar Atualização">
+    </form>
+
+    <a href="/">Voltar à página inicial</a>
+</body>
+</html>
