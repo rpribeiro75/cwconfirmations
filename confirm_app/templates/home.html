@@ -1,8 +1,7 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Home</title>
-</head>
+{% extends "base.html" %}
+
+{% block content %}
+
 <body>
     <h1>Bem-vindo à sua aplicação</h1>
     <p>Esta é a página inicial da sua aplicação.</p>
@@ -11,4 +10,6 @@
     <br>
     <a href="{% url 'visualizar' %}">Visualizar Registros</a>
 </body>
+
+{% endblock %}
 </html>
