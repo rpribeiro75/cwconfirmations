@@ -1,4 +1,5 @@
 from django.db import models
+from django.urls import reverse
 import uuid
 
 class Engagement(models.Model):
@@ -6,10 +7,10 @@ class Engagement(models.Model):
     referencia = models.CharField(max_length=50)
 
     def __str__(self):
-        return self.id
+        return self.cliente
 
     def get_absolute_url(self):
-        return reverse("Engagement_detail", kwargs={"pk": self.pk})
+        return reverse("engagement_list")
 
 class Registro(models.Model):
     engagement = models.ForeignKey(Engagement, on_delete=models.CASCADE)

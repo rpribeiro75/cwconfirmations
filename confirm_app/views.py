@@ -1,7 +1,10 @@
 import io
 import csv
-from django.http import HttpResponse
 
+from django.http import HttpResponse
+from django.views.generic.edit import UpdateView, CreateView
+from django.views.generic.list import ListView
+from django.views.generic import DetailView
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views import View
 from django.core.mail import send_mail
@@ -10,7 +13,7 @@ from django.core.files.base import ContentFile
 from .models import Engagement, Registro
 from .forms import EngagementForm, RegistroForm, CSVUploadForm, SaldoUpdateForm
 from django.http import Http404
-
+from django.urls import reverse_lazy, reverse
 import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
@@ -23,29 +26,39 @@ from .secrets import smtp_server, smtp_port, smtp_username, smtp_password
 # smtp_username = "cwconfirmations@sapo.pt"
 # smtp_password = "Bestino2004!"
 
-def criar_engagement(request):
-    form = EngagementForm()
-    
-    if request.method == "POST":
-        form = EngagementForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect('visualizar')
-    else:
-        form = EngagementForm()
-    
-    return render(request, 'criar_engagement.html', {'form': form})
+class EngagementCreateView(CreateView):
+    model = Engagement
+    fields = ['cliente', 'referencia']
+    template_name = 'criar_engagement.html'
+    success_url = reverse_lazy('engagement_list')
+
+class EngagementUpdateView(UpdateView):
+    model = Engagement
+    fields = ['cliente', 'referencia']
+    template_name = 'engagement_form.html'
+
+class EngagementListView(ListView):
+    model = Engagement
+    template_name = 'engagement_list.html'
+    context_object_name = 'engagements'
+
+class EngagementDetailView(DetailView):
+    model = Engagement
+    template_name = 'engagement_detail.html'
+    context_object_name = 'engagement'
     
 
-class ImportarCSV(View):
-    template_name = 'importar_csv.html'  # Define o nome do template
+class ImportarCSVParaEngagement(View):
+    template_name = 'importar_csv_engagement.html'
 
-    def get(self, request):
-        form = CSVUploadForm()  # Crie uma instância do formulário
-        return render(request, self.template_name, {'form': form})
+    def get(self, request, pk):
+        engagement = Engagement.objects.get(pk=pk)
+        form = CSVUploadForm()
+        return render(request, self.template_name, {'engagement': engagement, 'form': form})
 
-    def post(self, request):
-        form = CSVUploadForm(request.POST, request.FILES)  # Crie uma instância do formulário com dados da solicitação
+    def post(self, request, pk):
+        engagement = Engagement.objects.get(pk=pk)
+        form = CSVUploadForm(request.POST, request.FILES)
 
         if form.is_valid():
             csv_file = request.FILES['file']
@@ -53,21 +66,79 @@ class ImportarCSV(View):
             io_string = io.StringIO(data_set)
             next(io_string)
             for column in csv.reader(io_string, delimiter=';', quotechar="|"):
-                try:
-                    # Retrieve the Engagement instance by cliente or referencia
-                    engagement = Engagement.objects.get(id=column[0])
-                except Engagement.DoesNotExist:
-                    # Handle the case where Engagement doesn't exist
-                    continue
                 _, created = Registro.objects.update_or_create(
                     engagement=engagement,
-                    terceiro=column[1],
-                    contacto=column[2],
-                    email=column[3]
+                    terceiro=column[0],
+                    contacto=column[1],
+                    email=column[2]
                 )
-            return visualizar(request)
+            return redirect('engagement_detail', pk=pk)
 
-        return render(request, self.template_name, {'form': form})
+        return render(request, self.template_name, {'engagement': engagement, 'form': form})
+
+
+
+
+# class ImportarCSV(View):
+#     template_name = 'importar_csv.html'  # Defina o nome do template
+
+#     def post(self, request):
+#         engagement_id = request.POST.get('engagement')
+#         try:
+#             engagement = Engagement.objects.get(pk=engagement_id)
+#         except Engagement.DoesNotExist:
+#             # Lide com o caso em que o Engagement não existe
+#             return HttpResponse("Engagement não encontrado")
+
+#         form = CSVUploadForm(request.POST, request.FILES)
+#         if form.is_valid():
+#             csv_file = request.FILES['file']
+#             data_set = csv_file.read().decode('UTF-8')
+#             io_string = io.StringIO(data_set)
+#             next(io_string)
+#             for column in csv.reader(io_string, delimiter=';', quotechar="|"):
+#                 Registro.objects.create(
+#                     engagement=engagement,
+#                     terceiro=column[1],
+#                     contacto=column[2],
+#                     email=column[3]
+#                 )
+#             return HttpResponse("CSV importado com sucesso")
+
+#         return render(request, self.template_name, {'form': form})
+
+
+# class ImportarCSV(View):
+#     template_name = 'importar_csv.html'  # Define o nome do template
+
+#     def get(self, request):
+#         form = CSVUploadForm()  # Crie uma instância do formulário
+#         return render(request, self.template_name, {'form': form})
+
+#     def post(self, request):
+#         form = CSVUploadForm(request.POST, request.FILES)  # Crie uma instância do formulário com dados da solicitação
+
+#         if form.is_valid():
+#             csv_file = request.FILES['file']
+#             data_set = csv_file.read().decode('UTF-8')
+#             io_string = io.StringIO(data_set)
+#             next(io_string)
+#             for column in csv.reader(io_string, delimiter=';', quotechar="|"):
+#                 try:
+#                     # Retrieve the Engagement instance by cliente or referencia
+#                     engagement = Engagement.objects.get(id=column[0])
+#                 except Engagement.DoesNotExist:
+#                     # Handle the case where Engagement doesn't exist
+#                     continue
+#                 _, created = Registro.objects.update_or_create(
+#                     engagement=engagement,
+#                     terceiro=column[1],
+#                     contacto=column[2],
+#                     email=column[3]
+#                 )
+#             return visualizar(request)
+
+#         return render(request, self.template_name, {'form': form})
 
 def visualizar(request):
     registros = Registro.objects.all()
@@ -102,21 +173,18 @@ def home(request):
     return render(request, 'home.html')
 
 
+class EnviarEmailEngagement(View):
+    def get(self, request, engagement_id):
+        engagement = get_object_or_404(Engagement, pk=engagement_id)
+        registros = engagement.registro_set.filter(extrato=False)  # Filtrar registros não confirmados
 
-
-
-class EnviarEmail(View):
-    def get(self, request):
-        # Renderize a página para exibir os registros
-        registros = Registro.objects.all()
-        return render(request, 'enviar_emails.html', {'registros': registros})
-
-    def post(self, request):
-        # Loop para enviar e-mails para cada linha de dados
-        for registro in Registro.objects.all():
+    def post(self, request, engagement_id):
+        engagement = get_object_or_404(Engagement, pk=engagement_id)
+        registros = engagement.registro_set.filter(extrato=False)  # Filtrar registros não confirmados
+        for registro in registros:
             # Coloque o código de envio de e-mails aqui
             link_unico = registro.link_unico
-            url = '/pagina_saldo/{}'.format(link_unico)
+            url = request.build_absolute_uri(reverse('pagina_saldo', args=[link_unico]))
             msg = MIMEMultipart()
             msg['From'] = 'cwconfirmations@sapo.pt'
             msg['To'] = registro.email
@@ -138,7 +206,45 @@ class EnviarEmail(View):
             server.sendmail(smtp_username, registro.email, msg.as_string())
             server.quit()
 
-        return render(request, 'enviar_emails.html')  # Redirecione para uma página de sucesso
+        return render(request, 'enviar_emails.html', {'registros': registros, 'engagement': engagement})
+
+
+
+
+# class EnviarEmail(View):
+#     def get(self, request):
+#         # Renderize a página para exibir os registros
+#         registros = Registro.objects.all()
+#         return render(request, 'enviar_emails.html', {'registros': registros})
+
+#     def post(self, request):
+#         # Loop para enviar e-mails para cada linha de dados
+#         for registro in Registro.objects.all():
+#             # Coloque o código de envio de e-mails aqui
+#             link_unico = registro.link_unico
+#             url = '/pagina_saldo/{}'.format(link_unico)
+#             msg = MIMEMultipart()
+#             msg['From'] = 'cwconfirmations@sapo.pt'
+#             msg['To'] = registro.email
+#             msg['Subject'] = 'Confirmação de Atualização de Saldo'
+
+#             message = f"""
+#             Olá {registro.terceiro},
+            
+#             Para confirmar a atualização de saldo, clique no link abaixo:
+#             {url}
+
+#             Obrigado por usar nosso serviço.
+#             """
+#             msg.attach(MIMEText(message, 'plain'))
+
+#             server = smtplib.SMTP(smtp_server, smtp_port)
+#             server.starttls()
+#             server.login(smtp_username, smtp_password)
+#             server.sendmail(smtp_username, registro.email, msg.as_string())
+#             server.quit()
+
+#         return render(request, 'enviar_emails.html')  # Redirecione para uma página de sucesso
 
 
 

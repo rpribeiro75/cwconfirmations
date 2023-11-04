@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block content %}
+<head>
+    <title>Detalhes do Engagement</title>
+</head>
+<body>
+    <h1>Detalhes do Engagement</h1>
+
+    <p>Cliente: {{ engagement.cliente }}</p>
+    <p>Referência: {{ engagement.referencia }}</p>
+
+    <!-- Adicione aqui qualquer outra informação que deseja exibir sobre o Engagement -->
+
+    <h2>Registros Associados:</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Terceiro</th>
+                <th>Contato</th>
+                <th>Email</th>
+                <th>Extrato</th>
+
+            </tr>
+        </thead>
+        <tbody>
+            {% for registro in engagement.registro_set.all %}
+                <tr>
+                    <td>{{ registro.terceiro }}</td>
+                    <td>{{ registro.contacto }}</td>
+                    <td>{{ registro.email }}</td>
+                    <td>{{ registro.arquivo }}</td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="3">Nenhum registro associado.</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <h2>Enviar E-mails:</h2>
+    <form method="post" action="{% url 'enviar_emails_engagement' engagement.pk %}">
+        {% csrf_token %}
+        <button type="submit">Enviar E-mails</button>
+    </form>
+</body>
+{% endblock %}

@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1>Lista de Engagement</h1>
+
+<ul>
+    {% for engagement in engagements %}
+        <li>
+            {{ engagement.cliente }} - {{ engagement.referencia }}
+            <a href="{% url 'engagement_detail' engagement.pk %}">Detalhes</a>
+            <a href="{% url 'engagement_update' engagement.pk %}">Editar</a>
+            <a href="{% url 'importar_csv_engagement' engagement.pk %}">Importar CSV</a>
+        </li>
+    {% endfor %}
+</ul>
+
+{% endblock %}
