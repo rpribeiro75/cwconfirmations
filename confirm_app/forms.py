@@ -1,5 +1,10 @@
 from django import forms
-from .models import Registro
+from .models import Registro, Engagement
+
+class EngagementForm(forms.ModelForm):
+    class Meta:
+        model = Engagement
+        fields = ['cliente', 'referencia']
 
 class RegistroForm(forms.ModelForm):
     class Meta:

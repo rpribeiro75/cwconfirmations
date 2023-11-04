@@ -4,6 +4,7 @@ from . import views
 
 urlpatterns = [
     path('', views.home, name='home'),
+    path('criar_engagement', views.criar_engagement, name="criar_engagement"),
     path('importar-csv/', views.ImportarCSV.as_view(), name='importar_csv'),
     path('visualizar/', views.visualizar, name='visualizar'),
     path('pagina_saldo/<str:link_unico>/', views.PaginaSaldo.as_view(), name='pagina_saldo'),

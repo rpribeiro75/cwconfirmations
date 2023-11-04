@@ -7,22 +7,35 @@ from django.views import View
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
 from django.core.files.base import ContentFile
-from .models import Registro
-from .forms import RegistroForm
-from .forms import CSVUploadForm, SaldoUpdateForm
+from .models import Engagement, Registro
+from .forms import EngagementForm, RegistroForm, CSVUploadForm, SaldoUpdateForm
 from django.http import Http404
 
 import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
+from .secrets import smtp_server, smtp_port, smtp_username, smtp_password
 
 # Configurações do servidor de e-mail (substitua com suas próprias configurações)
-smtp_server = "smtp.sapo.pt"
-smtp_port = 587
-smtp_username = "cwconfirmations@sapo.pt"
-smtp_password = "Bestino2004!"
+# smtp_server = "smtp.sapo.pt"
+# smtp_port = 587
+# smtp_username = "cwconfirmations@sapo.pt"
+# smtp_password = "Bestino2004!"
 
+def criar_engagement(request):
+    form = EngagementForm()
+    
+    if request.method == "POST":
+        form = EngagementForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('visualizar')
+    else:
+        form = EngagementForm()
+    
+    return render(request, 'criar_engagement.html', {'form': form})
+    
 
 class ImportarCSV(View):
     template_name = 'importar_csv.html'  # Define o nome do template
@@ -40,12 +53,19 @@ class ImportarCSV(View):
             io_string = io.StringIO(data_set)
             next(io_string)
             for column in csv.reader(io_string, delimiter=';', quotechar="|"):
+                try:
+                    # Retrieve the Engagement instance by cliente or referencia
+                    engagement = Engagement.objects.get(id=column[0])
+                except Engagement.DoesNotExist:
+                    # Handle the case where Engagement doesn't exist
+                    continue
                 _, created = Registro.objects.update_or_create(
-                    terceiro=column[0],
-                    contacto=column[1],
-                    email=column[2]
+                    engagement=engagement,
+                    terceiro=column[1],
+                    contacto=column[2],
+                    email=column[3]
                 )
-            return HttpResponse(status=200)
+            return visualizar(request)
 
         return render(request, self.template_name, {'form': form})
 
