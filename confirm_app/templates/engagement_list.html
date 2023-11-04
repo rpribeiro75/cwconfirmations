@@ -4,15 +4,27 @@
 
 <h1>Lista de Engagement</h1>
 
-<ul>
-    {% for engagement in engagements %}
-        <li>
-            {{ engagement.cliente }} - {{ engagement.referencia }}
-            <a href="{% url 'engagement_detail' engagement.pk %}">Detalhes</a>
-            <a href="{% url 'engagement_update' engagement.pk %}">Editar</a>
-            <a href="{% url 'importar_csv_engagement' engagement.pk %}">Importar CSV</a>
-        </li>
-    {% endfor %}
-</ul>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Cliente</th>
+            <th>Referência</th>
+            <th>Detalhes</th>
+            <th>Editar</th>
+            <th>Importar CSV</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for engagement in engagements %}
+            <tr>
+                <td>{{ engagement.cliente }}</td>
+                <td>{{ engagement.referencia }}</td>
+                <td><a href="{% url 'engagement_detail' engagement.pk %}">Detalhes</a></td>
+                <td><a href="{% url 'engagement_update' engagement.pk %}">Editar</a></td>
+                <td><a href="{% url 'importar_csv_engagement' engagement.pk %}">Importar CSV</a></td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
 
 {% endblock %}
