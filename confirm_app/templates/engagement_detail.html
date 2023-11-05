@@ -10,17 +10,20 @@
     <p>Cliente: {{ engagement.cliente }}</p>
     <p>Referência: {{ engagement.referencia }}</p>
 
+    <a href="{% url 'engagement_update' engagement.pk %}" class="btn btn-primary">Editar Engagement</a>
+
     <!-- Adicione aqui qualquer outra informação que deseja exibir sobre o Engagement -->
 
     <h2>Registros Associados:</h2>
-    <table>
+    
+    <table class="table">
         <thead>
             <tr>
                 <th>Terceiro</th>
                 <th>Contato</th>
                 <th>Email</th>
                 <th>Extrato</th>
-
+                <th>Editar</th>
             </tr>
         </thead>
         <tbody>
@@ -30,18 +33,21 @@
                     <td>{{ registro.contacto }}</td>
                     <td>{{ registro.email }}</td>
                     <td>{{ registro.arquivo }}</td>
+                    <td><a href="{% url 'editar_registro' registro.pk %}"><i class="bi bi-pencil"></i></a>
+                        <a href="{% url 'enviar_email_registro' registro.pk %}"><i class="bi bi-send"></i></a></td>
                 </tr>
             {% empty %}
                 <tr>
                     <td colspan="3">Nenhum registro associado.</td>
                 </tr>
+                <a href="{% url 'importar_csv_engagement' engagement.pk %}" class="btn btn-primary">Importar CSV</a>
             {% endfor %}
         </tbody>
     </table>
     <h2>Enviar E-mails:</h2>
     <form method="post" action="{% url 'enviar_emails_engagement' engagement.pk %}">
         {% csrf_token %}
-        <button type="submit">Enviar E-mails</button>
+        <button type="submit" class="btn btn-success">Enviar E-mails</button>
     </form>
 </body>
 {% endblock %}

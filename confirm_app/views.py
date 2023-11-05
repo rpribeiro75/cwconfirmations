@@ -191,7 +191,7 @@ class EnviarEmailEngagement(View):
             msg['Subject'] = 'Confirmação de Atualização de Saldo'
 
             message = f"""
-            Olá {registro.terceiro},
+            Olá {registro.contacto},
             
             Para confirmar a atualização de saldo, clique no link abaixo:
             {url}
@@ -208,6 +208,40 @@ class EnviarEmailEngagement(View):
 
         return render(request, 'enviar_emails.html', {'registros': registros, 'engagement': engagement})
 
+
+class EnviarEmailRegistro(View):
+    def get(self, request, registro_id):
+        registro = get_object_or_404(Registro, pk=registro_id)
+
+        # Check if the record has not been confirmed
+        if not registro.extrato:
+            # Build the unique URL for the record
+            link_unico = registro.link_unico
+            url = request.build_absolute_uri(reverse('pagina_saldo', args=[link_unico]))
+
+            # Create and send the email
+            msg = MIMEMultipart()
+            msg['From'] = 'cwconfirmations@sapo.pt'
+            msg['To'] = registro.email
+            msg['Subject'] = 'Confirmação de Atualização de Saldo'
+
+            message = f"""
+            Olá {registro.contacto},
+            
+            Para confirmar a atualização de saldo, clique no link abaixo:
+            {url}
+
+            Obrigado por usar nosso serviço.
+            """
+            msg.attach(MIMEText(message, 'plain'))
+
+            server = smtplib.SMTP(smtp_server, smtp_port)
+            server.starttls()
+            server.login(smtp_username, smtp_password)
+            server.sendmail(smtp_username, registro.email, msg.as_string())
+            server.quit()
+
+        return render(request, 'enviar_emails.html', {'registro': registro})
 
 
 
