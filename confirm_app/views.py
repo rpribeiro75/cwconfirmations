@@ -10,7 +10,7 @@ from django.views import View
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
 from django.core.files.base import ContentFile
-from .models import Engagement, Registro
+from .models import Engagement, Registro, Autorizacao
 from .forms import EngagementForm, RegistroForm, CSVUploadForm, SaldoUpdateForm
 from django.http import Http404
 from django.urls import reverse_lazy, reverse
@@ -348,3 +348,99 @@ class PaginaErro(View):
     def get(self, request):
         return render(request, self.template_name)
 
+def autorizar(request, link_unico):
+    try:
+        autorizacao = Autorizacao.objects.get(link_unico=link_unico)
+    except Autorizacao.DoesNotExist:
+        return redirect('pagina_erro')  # Link único inválido
+
+    # Verifique se a autorização já foi confirmada
+    if not autorizacao.confirmado:
+        registros_autorizados = autorizacao.registros_autorizados.all()
+
+        # Lógica para listar os registros associados a esta Autorizacao
+        # Por exemplo, você pode criar um formulário para permitir que o usuário selecione os registros que deseja autorizar
+
+        if request.method == 'POST':
+            # Lógica para processar a autorização
+            # Marque os registros selecionados como autorizados
+
+            for registro in registros_autorizados:
+                if f'registro_{registro.id}' in request.POST:
+                    registro.autorizado = True
+                    registro.save()
+
+            # Marque a autorização como confirmada
+            autorizacao.confirmado = True
+            autorizacao.save()
+
+            return redirect('pagina_sucesso')  # Autorização bem-sucedida
+
+        return render(request, 'autorizar.html', {'autorizacao': autorizacao, 'registros_autorizados': registros_autorizados})
+
+    return redirect('pagina_erro')  # Autorização já confirmada
+
+class SolicitarAutorizacaoView(View):
+    def get(self, request, registro_id):
+        registro = get_object_or_404(Registro, pk=registro_id)
+
+        # Verifique se o registro já foi confirmado
+        if registro.extrato:
+            # Se já foi confirmado, redirecione para uma página de erro ou outra ação apropriada
+            return redirect('pagina_erro')
+
+        # Crie uma nova Autorizacao associada a este registro
+        autorizacao = Autorizacao.objects.create(autorizador='Nome do Autorizador', engagement=registro.engagement)
+
+        # Construa o link exclusivo para a confirmação de autorização
+        link_unico = autorizacao.link_unico
+        url = request.build_absolute_uri(reverse('confirmar_autorizacao', args=[link_unico]))
+
+        # Crie e envie o email para o autorizador solicitando a autorização
+        msg = MIMEMultipart()
+        msg['From'] = 'cwconfirmations@sapo.pt'
+        msg['To'] = autorizacao.email  # Use o email do autorizador do objeto Autorizacao
+        msg['Subject'] = 'Solicitação de Autorização'
+
+        message = f"""
+        Olá Autorizador,
+
+        Você recebeu uma solicitação para autorizar a atualização de saldo para o terceiro {registro.terceiro}.
+        Para autorizar, clique no link abaixo:
+        {url}
+
+        Obrigado por usar nosso serviço.
+        """
+        msg.attach(MIMEText(message, 'plain'))
+
+        # Use os detalhes de conexão SMTP apropriados para enviar o email
+        server = smtplib.SMTP(smtp_server, smtp_port)
+        server.starttls()
+        server.login(smtp_username, smtp_password)
+        server.sendmail(smtp_username, autorizacao.email, msg.as_string())
+        server.quit()
+
+        return render(request, 'solicitacao_de_autorizacao.html', {'registro': registro})
+
+def confirmar_autorizacao(request, link_unico):
+    try:
+        autorizacao = Autorizacao.objects.get(link_unico=link_unico)
+    except Autorizacao.DoesNotExist:
+        return redirect('pagina_erro')  # Link único inválido
+
+    # Verifique se a autorização já foi confirmada
+    if not autorizacao.confirmado:
+        registros_autorizados = autorizacao.registros_autorizados.all()
+
+        # Marque os registros como confirmados
+        for registro in registros_autorizados:
+            registro.confirmado = True
+            registro.save()
+
+        # Marque a autorização como confirmada
+        autorizacao.confirmado = True
+        autorizacao.save()
+
+        return redirect('pagina_sucesso')  # Confirmação bem-sucedida
+
+    return redirect('pagina_erro')  # Autorização já confirmada
