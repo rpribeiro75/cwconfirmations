@@ -155,7 +155,6 @@ class EnviarEmailEngagement(View):
         engagement = get_object_or_404(Engagement, pk=engagement_id)
         registros = engagement.pedidoterceiros_set.filter(respondido=False)  # Filtrar registros não confirmados
         for registro in registros:
-            # Coloque o código de envio de e-mails aqui
             link_unico = registro.link_unico
             url = request.build_absolute_uri(reverse('pagina_saldo', args=[link_unico]))
             msg = MIMEMultipart()
