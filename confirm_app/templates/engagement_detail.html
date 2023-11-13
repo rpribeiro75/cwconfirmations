@@ -14,7 +14,7 @@
 
     <!-- Adicione aqui qualquer outra informação que deseja exibir sobre o Engagement -->
 
-    <h2>Registros Associados:</h2>
+    <h2>Pedidos de Terceiros Associados:</h2>
     
     <table class="table">
         <thead>
@@ -27,14 +27,14 @@
             </tr>
         </thead>
         <tbody>
-            {% for registro in engagement.registro_set.all %}
+            {% for pedido in engagement.pedidoterceiros_set.all %}
                 <tr>
-                    <td>{{ registro.terceiro }}</td>
-                    <td>{{ registro.contacto }}</td>
-                    <td>{{ registro.email }}</td>
-                    <td>{{ registro.arquivo }}</td>
-                    <td><a href="{% url 'editar_registro' registro.pk %}"><i class="bi bi-pencil"></i></a>
-                        <a href="{% url 'enviar_email_registro' registro.pk %}"><i class="bi bi-send"></i></a></td>
+                    <td>{{ pedido.terceiro }}</td>
+                    <td>{{ pedido.contacto }}</td>
+                    <td>{{ pedido.email }}</td>
+                    <td>{{ pedido.anexo }}</td>
+                    <td><a href="{% url 'editar_registro' pedido.pk %}"><i class="bi bi-pencil"></i></a>
+                        <a href="{% url 'enviar_email_registro' pedido.pk %}"><i class="bi bi-send"></i></a></td>
                 </tr>
             {% empty %}
                 <tr>

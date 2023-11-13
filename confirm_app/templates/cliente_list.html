@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1>Lista de Clientes</h1>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Cliente</th>
+            <th>Código</th>
+            <th>Detalhes</th>  <!-- Adicione esta coluna -->
+        </tr>
+    </thead>
+    <tbody>
+        {% for cliente in clientes %}
+            <tr>
+                <td>{{ cliente.cliente_nome }}</td>
+                <td>{{ cliente.cliente_codigo }}</td>
+                <td>
+                    <a href="{% url 'cliente_detail' pk=cliente.pk %}">Detalhes</a>
+                </td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% endblock %}

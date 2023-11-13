@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1>Detalhes do Cliente</h1>
+
+<p>Cliente: {{ cliente.cliente_nome }}</p>
+<p>Código: {{ cliente.cliente_codigo }}</p>
+
+<h2>Criar Novo Engagement</h2>
+<form method="post" action="{% url 'engagement_criar' cliente_pk=cliente.pk %}">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Criar Engagement</button>
+</form>
+
+<h2>Engagements Associados</h2>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Referência</th>
+            <th>Nome do Engagement</th>
+            <th>Editar</th>
+            <!-- Adicione outras colunas conforme necessário -->
+        </tr>
+    </thead>
+    <tbody>
+        {% for engagement in cliente.engagement_set.all %}
+            <tr>
+                <td>{{ engagement.engagement_referencia }}</td>
+                <td>{{ engagement.engagement_nome }}</td>
+                <td>
+                    <a href="{% url 'engagement_detail' pk=engagement.pk %}">Detalhes</a>
+                </td>
+                <!-- Adicione outras células conforme necessário -->
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
+

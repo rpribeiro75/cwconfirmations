@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Criar Engagement</title>
+    <title>Criar Cliente</title>
 </head>
 <body>
-    <h1>Criar Engagement</h1>
+    <h1>Criar Cliente</h1>
 
     <form method="post">
         {% csrf_token %}
@@ -12,6 +12,6 @@
         <input type="submit" value="Salvar Alterações">
     </form>
 
-    <a href="{% url 'visualizar' %}">Voltar à Página de Visualização</a>
+    <a href="{% url 'cliente_list' %}">Voltar à Lista de Clientes</a>
 </body>
 </html>

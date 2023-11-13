@@ -1,15 +1,21 @@
 from django import forms
-from .models import Registro, Engagement
+from .models import Cliente, PedidoTerceiros, Engagement
+
+
+class ClienteForm(forms.ModelForm):
+    class Meta:
+        model = Cliente
+        fields = ['cliente_nome', 'cliente_codigo']
 
 class EngagementForm(forms.ModelForm):
     class Meta:
         model = Engagement
-        fields = ['cliente', 'referencia']
+        fields = ["engagement_nome",'engagement_referencia']
 
-class RegistroForm(forms.ModelForm):
+class PedidoTerceirosForm(forms.ModelForm):
     class Meta:
-        model = Registro
-        fields = ['saldo', 'arquivo']
+        model = PedidoTerceiros
+        fields = ['saldo', 'anexo']
 
 
 class CSVUploadForm(forms.Form):
@@ -19,5 +25,5 @@ class CSVUploadForm(forms.Form):
 
 class SaldoUpdateForm(forms.Form):
     saldo = forms.DecimalField(label='Saldo', max_digits=10, decimal_places=2, required=True)
-    arquivo = forms.FileField(label='Anexar arquivo', required=False)
+    anexo = forms.FileField(label='Anexar extrato', required=False)
 

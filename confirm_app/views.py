@@ -10,8 +10,8 @@ from django.views import View
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
 from django.core.files.base import ContentFile
-from .models import Engagement, Registro, Autorizacao
-from .forms import EngagementForm, RegistroForm, CSVUploadForm, SaldoUpdateForm
+from .models import Cliente, Engagement, PedidoTerceiros
+from .forms import ClienteForm, EngagementForm, PedidoTerceirosForm, CSVUploadForm, SaldoUpdateForm
 from django.http import Http404
 from django.urls import reverse_lazy, reverse
 import smtplib
@@ -26,15 +26,51 @@ from .secrets import smtp_server, smtp_port, smtp_username, smtp_password
 # smtp_username = "cwconfirmations@sapo.pt"
 # smtp_password = "Bestino2004!"
 
+def home(request):
+    return render(request, 'home.html')
+
+
+class ClienteCreateView(CreateView):
+    model = Cliente
+    form_class = ClienteForm
+    template_name = 'cliente_criar.html'
+    success_url = reverse_lazy('cliente_list')
+
+
+class ClienteListView(ListView):
+    model = Cliente
+    template_name = 'cliente_list.html'
+    context_object_name = 'clientes'  
+
+class ClienteDetailView(DetailView):
+    model = Cliente
+    template_name = 'cliente_detail.html'
+    context_object_name = 'cliente'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['form'] = EngagementForm()  # Adiciona o formulário de engagement ao contexto
+        return context
+
+
 class EngagementCreateView(CreateView):
     model = Engagement
-    fields = ['cliente', 'referencia']
-    template_name = 'criar_engagement.html'
-    success_url = reverse_lazy('engagement_list')
+    form_class = EngagementForm
+    # template_name = 'engagement_criar.html'
+
+    def form_valid(self, form):
+        form.instance.cliente_id = self.kwargs['cliente_pk']
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return reverse_lazy('cliente_detail', kwargs={'pk': self.kwargs['cliente_pk']})
+
+
+
 
 class EngagementUpdateView(UpdateView):
     model = Engagement
-    fields = ['cliente', 'referencia']
+    fields = ['cliente', 'engagement_referencia']
     template_name = 'engagement_form.html'
 
 class EngagementListView(ListView):
@@ -66,7 +102,7 @@ class ImportarCSVParaEngagement(View):
             io_string = io.StringIO(data_set)
             next(io_string)
             for column in csv.reader(io_string, delimiter=';', quotechar="|"):
-                _, created = Registro.objects.update_or_create(
+                _, created = PedidoTerceiros.objects.update_or_create(
                     engagement=engagement,
                     terceiro=column[0],
                     contacto=column[1],
@@ -78,109 +114,46 @@ class ImportarCSVParaEngagement(View):
 
 
 
-
-# class ImportarCSV(View):
-#     template_name = 'importar_csv.html'  # Defina o nome do template
-
-#     def post(self, request):
-#         engagement_id = request.POST.get('engagement')
-#         try:
-#             engagement = Engagement.objects.get(pk=engagement_id)
-#         except Engagement.DoesNotExist:
-#             # Lide com o caso em que o Engagement não existe
-#             return HttpResponse("Engagement não encontrado")
-
-#         form = CSVUploadForm(request.POST, request.FILES)
-#         if form.is_valid():
-#             csv_file = request.FILES['file']
-#             data_set = csv_file.read().decode('UTF-8')
-#             io_string = io.StringIO(data_set)
-#             next(io_string)
-#             for column in csv.reader(io_string, delimiter=';', quotechar="|"):
-#                 Registro.objects.create(
-#                     engagement=engagement,
-#                     terceiro=column[1],
-#                     contacto=column[2],
-#                     email=column[3]
-#                 )
-#             return HttpResponse("CSV importado com sucesso")
-
-#         return render(request, self.template_name, {'form': form})
-
-
-# class ImportarCSV(View):
-#     template_name = 'importar_csv.html'  # Define o nome do template
-
-#     def get(self, request):
-#         form = CSVUploadForm()  # Crie uma instância do formulário
-#         return render(request, self.template_name, {'form': form})
-
-#     def post(self, request):
-#         form = CSVUploadForm(request.POST, request.FILES)  # Crie uma instância do formulário com dados da solicitação
-
-#         if form.is_valid():
-#             csv_file = request.FILES['file']
-#             data_set = csv_file.read().decode('UTF-8')
-#             io_string = io.StringIO(data_set)
-#             next(io_string)
-#             for column in csv.reader(io_string, delimiter=';', quotechar="|"):
-#                 try:
-#                     # Retrieve the Engagement instance by cliente or referencia
-#                     engagement = Engagement.objects.get(id=column[0])
-#                 except Engagement.DoesNotExist:
-#                     # Handle the case where Engagement doesn't exist
-#                     continue
-#                 _, created = Registro.objects.update_or_create(
-#                     engagement=engagement,
-#                     terceiro=column[1],
-#                     contacto=column[2],
-#                     email=column[3]
-#                 )
-#             return visualizar(request)
-
-#         return render(request, self.template_name, {'form': form})
-
-def visualizar(request):
-    registros = Registro.objects.all()
-    return render(request, 'visualizar.html', {'registros': registros})
+# def visualizar(request):
+#     registros = PedidoTerceiros.objects.all()
+#     return render(request, 'visualizar.html', {'registros': registros})
 
 
 def editar_registro(request, registro_id):
-    registro = get_object_or_404(Registro, pk=registro_id)
+    registro = get_object_or_404(PedidoTerceiros, pk=registro_id)
     
     if request.method == "POST":
-        form = RegistroForm(request.POST, instance=registro)
+        form = PedidoTerceirosForm(request.POST, instance=registro)
         if form.is_valid():
             form.save()
             return redirect('visualizar')
     else:
-        form = RegistroForm(instance=registro)
+        form = PedidoTerceirosForm(instance=registro)
     
     return render(request, 'editar_registro.html', {'form': form, 'registro': registro})
 
 
-def excluir_registro(request, registro_id):
-    registro = get_object_or_404(Registro, pk=registro_id)
+# def excluir_registro(request, registro_id):
+#     registro = get_object_or_404(Registro, pk=registro_id)
     
-    if request.method == "POST":
-        registro.delete()
-        return redirect('visualizar')
+#     if request.method == "POST":
+#         registro.delete()
+#         return redirect('visualizar')
     
-    return render(request, 'excluir_registro.html', {'registro': registro})
+#     return render(request, 'excluir_registro.html', {'registro': registro})
 
 
-def home(request):
-    return render(request, 'home.html')
+
 
 
 class EnviarEmailEngagement(View):
     def get(self, request, engagement_id):
         engagement = get_object_or_404(Engagement, pk=engagement_id)
-        registros = engagement.registro_set.filter(extrato=False)  # Filtrar registros não confirmados
+        registros = engagement.pedidoterceiros_set.filter(respondido=False)  # Filtrar registros não confirmados
 
     def post(self, request, engagement_id):
         engagement = get_object_or_404(Engagement, pk=engagement_id)
-        registros = engagement.registro_set.filter(extrato=False)  # Filtrar registros não confirmados
+        registros = engagement.pedidoterceiros_set.filter(respondido=False)  # Filtrar registros não confirmados
         for registro in registros:
             # Coloque o código de envio de e-mails aqui
             link_unico = registro.link_unico
@@ -206,15 +179,15 @@ class EnviarEmailEngagement(View):
             server.sendmail(smtp_username, registro.email, msg.as_string())
             server.quit()
 
-        return render(request, 'enviar_emails.html', {'registros': registros, 'engagement': engagement})
+        return render(request, 'enviar_emails_todos.html', {'registros': registros, 'engagement': engagement})
 
 
 class EnviarEmailRegistro(View):
     def get(self, request, registro_id):
-        registro = get_object_or_404(Registro, pk=registro_id)
+        registro = get_object_or_404(PedidoTerceiros, pk=registro_id)
 
         # Check if the record has not been confirmed
-        if not registro.extrato:
+        if not registro.respondido:
             # Build the unique URL for the record
             link_unico = registro.link_unico
             url = request.build_absolute_uri(reverse('pagina_saldo', args=[link_unico]))
@@ -245,44 +218,6 @@ class EnviarEmailRegistro(View):
 
 
 
-# class EnviarEmail(View):
-#     def get(self, request):
-#         # Renderize a página para exibir os registros
-#         registros = Registro.objects.all()
-#         return render(request, 'enviar_emails.html', {'registros': registros})
-
-#     def post(self, request):
-#         # Loop para enviar e-mails para cada linha de dados
-#         for registro in Registro.objects.all():
-#             # Coloque o código de envio de e-mails aqui
-#             link_unico = registro.link_unico
-#             url = '/pagina_saldo/{}'.format(link_unico)
-#             msg = MIMEMultipart()
-#             msg['From'] = 'cwconfirmations@sapo.pt'
-#             msg['To'] = registro.email
-#             msg['Subject'] = 'Confirmação de Atualização de Saldo'
-
-#             message = f"""
-#             Olá {registro.terceiro},
-            
-#             Para confirmar a atualização de saldo, clique no link abaixo:
-#             {url}
-
-#             Obrigado por usar nosso serviço.
-#             """
-#             msg.attach(MIMEText(message, 'plain'))
-
-#             server = smtplib.SMTP(smtp_server, smtp_port)
-#             server.starttls()
-#             server.login(smtp_username, smtp_password)
-#             server.sendmail(smtp_username, registro.email, msg.as_string())
-#             server.quit()
-
-#         return render(request, 'enviar_emails.html')  # Redirecione para uma página de sucesso
-
-
-
-
 
 class PaginaSaldo(View):
     template_name = 'pagina_saldo.html'
@@ -290,8 +225,8 @@ class PaginaSaldo(View):
     def get(self, request, link_unico):
         # Verifique se o link único é válido e se corresponde a um registro existente
         try:
-            registro = Registro.objects.get(link_unico=link_unico, extrato=False)
-        except Registro.DoesNotExist:
+            registro = PedidoTerceiros.objects.get(link_unico=link_unico, respondido=False)
+        except PedidoTerceiros.DoesNotExist:
             # Caso não exista um registro com esse link único, você pode lidar com isso adequadamente, como redirecionar para uma página de erro.
             return redirect('pagina_erro')
 
@@ -304,8 +239,8 @@ class PaginaSaldo(View):
     def post(self, request, link_unico):
         # Verifique se o link único é válido e se corresponde a um registro existente
         try:
-            registro = Registro.objects.get(link_unico=link_unico, extrato=False)
-        except Registro.DoesNotExist:
+            registro = PedidoTerceiros.objects.get(link_unico=link_unico, respondido=False)
+        except PedidoTerceiros.DoesNotExist:
             # Caso não exista um registro com esse link único, você pode lidar com isso adequadamente, como redirecionar para uma página de erro.
             return redirect('pagina_erro')
 
@@ -315,15 +250,15 @@ class PaginaSaldo(View):
         if form.is_valid():
             # Atualize o registro com os dados do formulário
             saldo = form.cleaned_data['saldo']
-            arquivo = form.cleaned_data['arquivo']
+            arquivo = form.cleaned_data['anexo']
 
             registro.saldo = saldo
             if arquivo:
-                registro.arquivo = arquivo
+                registro.anexo = arquivo
                 
 
             # Marque o registro como atualizado
-            registro.extrato = True
+            registro.respondido = True
             registro.save()
 
             # Redirecione para uma página de sucesso
@@ -347,100 +282,3 @@ class PaginaErro(View):
 
     def get(self, request):
         return render(request, self.template_name)
-
-def autorizar(request, link_unico):
-    try:
-        autorizacao = Autorizacao.objects.get(link_unico=link_unico)
-    except Autorizacao.DoesNotExist:
-        return redirect('pagina_erro')  # Link único inválido
-
-    # Verifique se a autorização já foi confirmada
-    if not autorizacao.confirmado:
-        registros_autorizados = autorizacao.registros_autorizados.all()
-
-        # Lógica para listar os registros associados a esta Autorizacao
-        # Por exemplo, você pode criar um formulário para permitir que o usuário selecione os registros que deseja autorizar
-
-        if request.method == 'POST':
-            # Lógica para processar a autorização
-            # Marque os registros selecionados como autorizados
-
-            for registro in registros_autorizados:
-                if f'registro_{registro.id}' in request.POST:
-                    registro.autorizado = True
-                    registro.save()
-
-            # Marque a autorização como confirmada
-            autorizacao.confirmado = True
-            autorizacao.save()
-
-            return redirect('pagina_sucesso')  # Autorização bem-sucedida
-
-        return render(request, 'autorizar.html', {'autorizacao': autorizacao, 'registros_autorizados': registros_autorizados})
-
-    return redirect('pagina_erro')  # Autorização já confirmada
-
-class SolicitarAutorizacaoView(View):
-    def get(self, request, registro_id):
-        registro = get_object_or_404(Registro, pk=registro_id)
-
-        # Verifique se o registro já foi confirmado
-        if registro.extrato:
-            # Se já foi confirmado, redirecione para uma página de erro ou outra ação apropriada
-            return redirect('pagina_erro')
-
-        # Crie uma nova Autorizacao associada a este registro
-        autorizacao = Autorizacao.objects.create(autorizador='Nome do Autorizador', engagement=registro.engagement)
-
-        # Construa o link exclusivo para a confirmação de autorização
-        link_unico = autorizacao.link_unico
-        url = request.build_absolute_uri(reverse('confirmar_autorizacao', args=[link_unico]))
-
-        # Crie e envie o email para o autorizador solicitando a autorização
-        msg = MIMEMultipart()
-        msg['From'] = 'cwconfirmations@sapo.pt'
-        msg['To'] = autorizacao.email  # Use o email do autorizador do objeto Autorizacao
-        msg['Subject'] = 'Solicitação de Autorização'
-
-        message = f"""
-        Olá Autorizador,
-
-        Você recebeu uma solicitação para autorizar a atualização de saldo para o terceiro {registro.terceiro}.
-        Para autorizar, clique no link abaixo:
-        {url}
-
-        Obrigado por usar nosso serviço.
-        """
-        msg.attach(MIMEText(message, 'plain'))
-
-        # Use os detalhes de conexão SMTP apropriados para enviar o email
-        server = smtplib.SMTP(smtp_server, smtp_port)
-        server.starttls()
-        server.login(smtp_username, smtp_password)
-        server.sendmail(smtp_username, autorizacao.email, msg.as_string())
-        server.quit()
-
-        return render(request, 'solicitacao_de_autorizacao.html', {'registro': registro})
-
-def confirmar_autorizacao(request, link_unico):
-    try:
-        autorizacao = Autorizacao.objects.get(link_unico=link_unico)
-    except Autorizacao.DoesNotExist:
-        return redirect('pagina_erro')  # Link único inválido
-
-    # Verifique se a autorização já foi confirmada
-    if not autorizacao.confirmado:
-        registros_autorizados = autorizacao.registros_autorizados.all()
-
-        # Marque os registros como confirmados
-        for registro in registros_autorizados:
-            registro.confirmado = True
-            registro.save()
-
-        # Marque a autorização como confirmada
-        autorizacao.confirmado = True
-        autorizacao.save()
-
-        return redirect('pagina_sucesso')  # Confirmação bem-sucedida
-
-    return redirect('pagina_erro')  # Autorização já confirmada
