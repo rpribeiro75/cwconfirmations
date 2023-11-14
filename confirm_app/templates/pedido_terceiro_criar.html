@@ -1,9 +1,11 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Criar Pedido Terceiro</title>
-</head>
-<body>
+{% extends "base.html" %}
+
+{% block title %}
+Criar Pedido Terceiro
+{% endblock %}
+
+{% block content %}
+
     <h1>Criar Pedido Terceiro</h1>
 
     <form action="{% url 'criar_pedido_terceiro' engagement.pk %}" method="post">
@@ -14,5 +16,5 @@
     </form>
 
     <a href="{% url 'engagement_detail' engagement.pk %}">Voltar ao Engagement</a>
-</body>
-</html>
+
+{% endblock %}

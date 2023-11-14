@@ -1,11 +1,13 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Envio de E-mails Concluído</title>
-</head>
-<body>
+{% extends "base.html" %}
+
+{% block title %}
+Envio de E-mails
+{% endblock %}
+
+{% block content %}
+
     <h1>Envio de E-mails Concluído</h1>
-    <p>E-mails de confirmação de saldo foram enviados para todos os contatos importados com sucesso.</p>
+    <p>E-mail de confirmação de saldo foi enviado para o contato com sucesso.</p>
     <a href="{% url 'engagement_detail' registro.engagement.id %}">Voltar para a página de visualização</a>
-</body>
-</html>
+
+{% endblock %}

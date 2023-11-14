@@ -1,10 +1,10 @@
 {% extends "base.html" %}
 
+{% block title %}
+Detalhes do Engagement
+{% endblock %}
+
 {% block content %}
-<head>
-    <title>Detalhes do Engagement</title>
-</head>
-<body>
     <h1>Detalhes do Engagement</h1>
 
     <p>Cliente: {{ engagement.cliente }}</p>
@@ -50,5 +50,5 @@
         {% csrf_token %}
         <button type="submit" class="btn btn-success">Enviar E-mails</button>
     </form>
-</body>
+
 {% endblock %}

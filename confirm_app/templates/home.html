@@ -1,13 +1,13 @@
 {% extends "base.html" %}
 
+{% block title %}
+Home
+{% endblock %}
+
 {% block content %}
 
-<body>
     <h1>Bem-vindo à sua aplicação</h1>
     <p>Esta é a página inicial da sua aplicação.</p>
     <a href="{% url 'cliente_criar' %}">Criar novo Cliente</a>
-
-
-</body>
 
 {% endblock %}

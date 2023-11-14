@@ -1,9 +1,11 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Criar Cliente</title>
-</head>
-<body>
+{% extends "base.html" %}
+
+{% block title %}
+Criar Cliente
+{% endblock %}
+
+{% block content %}
+
     <h1>Criar Cliente</h1>
 
     <form method="post">
@@ -13,5 +15,5 @@
     </form>
 
     <a href="{% url 'cliente_list' %}">Voltar à Lista de Clientes</a>
-</body>
-</html>
+
+{% endblock %}
