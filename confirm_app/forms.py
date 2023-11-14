@@ -12,6 +12,11 @@ class EngagementForm(forms.ModelForm):
         model = Engagement
         fields = ["engagement_nome",'engagement_referencia']
 
+class CriarPedidoTerceirosForm(forms.ModelForm):
+    class Meta:
+        model = PedidoTerceiros
+        fields = ['terceiro', 'conta_contabilidade', 'contacto', 'email', 'saldo_contabilidade']
+
 class PedidoTerceirosForm(forms.ModelForm):
     class Meta:
         model = PedidoTerceiros

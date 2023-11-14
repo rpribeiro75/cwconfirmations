@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Criar Pedido Terceiro</title>
+</head>
+<body>
+    <h1>Criar Pedido Terceiro</h1>
+
+    <form action="{% url 'criar_pedido_terceiro' engagement.pk %}" method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+
+        <button type="submit">Criar</button>
+    </form>
+
+    <a href="{% url 'engagement_detail' engagement.pk %}">Voltar ao Engagement</a>
+</body>
+</html>

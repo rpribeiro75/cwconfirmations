@@ -11,7 +11,7 @@ from django.core.mail import send_mail
 from django.template.loader import render_to_string
 from django.core.files.base import ContentFile
 from .models import Cliente, Engagement, PedidoTerceiros
-from .forms import ClienteForm, EngagementForm, PedidoTerceirosForm, CSVUploadForm, SaldoUpdateForm
+from .forms import ClienteForm, EngagementForm, CriarPedidoTerceirosForm, PedidoTerceirosForm, CSVUploadForm, SaldoUpdateForm
 from django.http import Http404
 from django.urls import reverse_lazy, reverse
 import smtplib
@@ -65,9 +65,6 @@ class EngagementCreateView(CreateView):
     def get_success_url(self):
         return reverse_lazy('cliente_detail', kwargs={'pk': self.kwargs['cliente_pk']})
 
-
-
-
 class EngagementUpdateView(UpdateView):
     model = Engagement
     fields = ['cliente', 'engagement_referencia']
@@ -82,7 +79,33 @@ class EngagementDetailView(DetailView):
     model = Engagement
     template_name = 'engagement_detail.html'
     context_object_name = 'engagement'
+
+def PedidoTerceirosCriar(request, pk):
+    engagement = get_object_or_404(Engagement,id=pk)
+    form = CriarPedidoTerceirosForm(initial={'engagement': pk})
     
+    if request.method=="POST":
+        form = CriarPedidoTerceirosForm(request.POST or None, request, initial={'engagement': pk})
+        
+        if form.is_valid():
+            saveform = form.save(commit=False)
+            saveform.engagement = engagement
+            saveform.save()
+            return redirect('engagement_detail', pk)
+        
+    return render(request, 'pedido_terceiro_criar.html', {"form":form, 'engagement':engagement})
+    
+
+class PedidoTerceirosCreateView(CreateView):
+    model = PedidoTerceiros
+    form_class = CriarPedidoTerceirosForm
+    template_name = 'pedido_terceiro_criar.html'
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['engagement'] = Engagement.objects.get(pk=self.kwargs['pk'])
+        context['form'] = CriarPedidoTerceirosForm(engagement=self.kwargs['pk'])
+        return context
 
 class ImportarCSVParaEngagement(View):
     template_name = 'importar_csv_engagement.html'
