@@ -14,9 +14,12 @@ from .models import Cliente, Engagement, PedidoTerceiros
 from .forms import ClienteForm, EngagementForm, CriarPedidoTerceirosForm, PedidoTerceirosForm, CSVUploadForm, SaldoUpdateForm
 from django.http import Http404
 from django.urls import reverse_lazy, reverse
+
 import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+from email.mime.base import MIMEBase
+from email import encoders
 
 from .secrets import smtp_server, smtp_port, smtp_username, smtp_password
 
@@ -67,7 +70,7 @@ class EngagementCreateView(CreateView):
 
 class EngagementUpdateView(UpdateView):
     model = Engagement
-    fields = ['cliente', 'engagement_referencia']
+    fields = ['cliente', 'engagement_referencia', "pdf_assinado"]
     template_name = 'engagement_form.html'
 
 class EngagementListView(ListView):
@@ -180,11 +183,20 @@ class EnviarEmailEngagement(View):
         for registro in registros:
             link_unico = registro.link_unico
             url = request.build_absolute_uri(reverse('pagina_saldo', args=[link_unico]))
+                             
             msg = MIMEMultipart()
             msg['From'] = 'cwconfirmations@sapo.pt'
             msg['To'] = registro.email
             msg['Subject'] = 'Confirmação de Atualização de Saldo'
+            if engagement.pdf_assinado:
+                filename = engagement.pdf_assinado.name.split("/")[-1]
+                attachment = open(engagement.pdf_assinado.path, 'rb')
+                part = MIMEBase('application', 'octet-stream')
+                part.set_payload((attachment).read())
+                encoders.encode_base64(part)
+                part.add_header('Content-Disposition', f"attachment; filename= {filename}")
 
+                msg.attach(part)    
             message = f"""
             Olá {registro.contacto},
             

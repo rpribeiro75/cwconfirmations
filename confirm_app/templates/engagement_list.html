@@ -9,6 +9,7 @@
         <tr>
             <th>Cliente</th>
             <th>Referência</th>
+            <th>Autorização</th>
             <th>Detalhes</th>
             <th>Editar</th>
             <th>Importar CSV</th>
@@ -19,6 +20,7 @@
             <tr>
                 <td>{{ engagement.cliente }}</td>
                 <td>{{ engagement.referencia }}</td>
+                <td>{{ engagement.pdf_assinado }}</td>
                 <td><a href="{% url 'engagement_detail' engagement.pk %}">Detalhes</a></td>
                 <td><a href="{% url 'engagement_update' engagement.pk %}">Editar</a></td>
                 <td><a href="{% url 'importar_csv_engagement' engagement.pk %}">Importar CSV</a></td>

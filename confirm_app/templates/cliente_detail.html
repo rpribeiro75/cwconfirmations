@@ -20,6 +20,7 @@
         <tr>
             <th>Referência</th>
             <th>Nome do Engagement</th>
+            <th>Autorização</th>
             <th>Editar</th>
             <!-- Adicione outras colunas conforme necessário -->
         </tr>
@@ -29,6 +30,7 @@
             <tr>
                 <td>{{ engagement.engagement_referencia }}</td>
                 <td>{{ engagement.engagement_nome }}</td>
+                <td>{{ engagement.pdf_assinado }}</td>
                 <td>
                     <a href="{% url 'engagement_detail' pk=engagement.pk %}">Detalhes</a>
                 </td>

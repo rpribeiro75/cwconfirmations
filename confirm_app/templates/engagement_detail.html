@@ -9,6 +9,8 @@
 
     <p>Cliente: {{ engagement.cliente }}</p>
     <p>Referência: {{ engagement.referencia }}</p>
+    <p>Autorização: {{ engagement.pdf_assinado }}</p>
+
 
     <a href="{% url 'engagement_update' engagement.pk %}" class="btn btn-primary">Editar Engagement</a>
 

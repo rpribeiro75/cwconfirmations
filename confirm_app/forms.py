@@ -10,7 +10,7 @@ class ClienteForm(forms.ModelForm):
 class EngagementForm(forms.ModelForm):
     class Meta:
         model = Engagement
-        fields = ["engagement_nome",'engagement_referencia']
+        fields = ["engagement_nome",'engagement_referencia', "pdf_assinado"]
 
 class CriarPedidoTerceirosForm(forms.ModelForm):
     class Meta:

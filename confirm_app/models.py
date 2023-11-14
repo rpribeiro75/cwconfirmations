@@ -18,6 +18,7 @@ class Engagement(models.Model):
     cliente = models.ForeignKey(Cliente, on_delete=models.CASCADE)
     engagement_nome = models.CharField(max_length=50)
     engagement_referencia = models.CharField(max_length=50)
+    pdf_assinado = models.FileField(upload_to='pdfs_assinados/', blank=True, null=True)
 
     def __str__(self):
         return self.engagement_nome
