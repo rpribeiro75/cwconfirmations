@@ -1,9 +1,11 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Importar CSV para {{ engagement.cliente }}</title>
-</head>
-<body>
+{% extends "base.html" %}
+
+{% block title %}
+Importar CSV
+{% endblock %}
+
+{% block content %}
+
     <h1>Importar CSV para {{ engagement.cliente }}</h1>
     <form method="post" enctype="multipart/form-data" action="{% url 'importar_csv_engagement' engagement.pk %}">
         {% csrf_token %}
@@ -11,5 +13,5 @@
         <input type="file" name="file" id="file">
         <input type="submit" value="Enviar">
     </form>
-</body>
-</html>
+
+{% endblock %}

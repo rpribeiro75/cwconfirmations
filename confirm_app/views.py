@@ -83,32 +83,26 @@ class EngagementDetailView(DetailView):
     template_name = 'engagement_detail.html'
     context_object_name = 'engagement'
 
-def PedidoTerceirosCriar(request, pk):
-    engagement = get_object_or_404(Engagement,id=pk)
-    form = CriarPedidoTerceirosForm(initial={'engagement': pk})
+class PedidoTerceirosCriarView(View):
+    template_name = 'pedido_terceiro_criar.html'
     
-    if request.method=="POST":
-        form = CriarPedidoTerceirosForm(request.POST or None, request, initial={'engagement': pk})
+    def get(self, request, pk):
+        engagement = get_object_or_404(Engagement, id=pk)
+        form = CriarPedidoTerceirosForm(initial={'engagement': pk})
+        return render(request, self.template_name, {"form": form, 'engagement': engagement})
+
+    def post(self, request, pk):
+        engagement = get_object_or_404(Engagement, id=pk)
+        form = CriarPedidoTerceirosForm(request.POST or None, initial={'engagement': pk})
         
         if form.is_valid():
             saveform = form.save(commit=False)
             saveform.engagement = engagement
             saveform.save()
-            return redirect('engagement_detail', pk)
+            return redirect('engagement_detail', pk=pk)
         
-    return render(request, 'pedido_terceiro_criar.html', {"form":form, 'engagement':engagement})
+        return render(request, self.template_name, {"form": form, 'engagement': engagement})
     
-
-class PedidoTerceirosCreateView(CreateView):
-    model = PedidoTerceiros
-    form_class = CriarPedidoTerceirosForm
-    template_name = 'pedido_terceiro_criar.html'
-    
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['engagement'] = Engagement.objects.get(pk=self.kwargs['pk'])
-        context['form'] = CriarPedidoTerceirosForm(engagement=self.kwargs['pk'])
-        return context
 
 class ImportarCSVParaEngagement(View):
     template_name = 'importar_csv_engagement.html'

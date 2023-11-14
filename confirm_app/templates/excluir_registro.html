@@ -1,12 +1,12 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Excluir Registro</title>
-</head>
-<body>
-    <h1>Excluir Registro</h1>
+{% extends "base.html" %}
 
-    <p>Você tem certeza de que deseja excluir este registro?</p>
+{% block title %}
+Excluir Registro
+{% endblock %}
+
+{% block content %}
+
+<p>Você tem certeza de que deseja excluir este registro?</p>
 
     <form method="post">
         {% csrf_token %}
@@ -14,5 +14,5 @@
     </form>
 
     <a href="{% url 'visualizar' %}">Voltar à Página de Visualização</a>
-</body>
-</html>
+
+{% endblock %}
