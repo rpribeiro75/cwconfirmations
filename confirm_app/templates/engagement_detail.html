@@ -5,6 +5,10 @@ Detalhes do Engagement
 {% endblock %}
 
 {% block content %}
+
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+
+
     <h1>Detalhes do Engagement</h1>
 
     <p>Cliente: {{ engagement.cliente }}</p>
@@ -23,10 +27,13 @@ Detalhes do Engagement
         <thead>
             <tr>
                 <th>Terceiro</th>
-                <th>Contato</th>
+                <th>Contacto</th>
                 <th>Email</th>
-                <th>Extrato</th>
+                
+                <th>Data 1º Envio</th> 
+                <th>Data Último Envio</th> 
                 <th>Editar</th>
+                
             </tr>
         </thead>
         <tbody>
@@ -36,8 +43,16 @@ Detalhes do Engagement
                     <td>{{ pedido.contacto }}</td>
                     <td>{{ pedido.email }}</td>
                     <td>{{ pedido.anexo }}</td>
+                    <td>{{ pedido.primeiro_envio | date:"Y-m-d H:i"}}</td>
+                    <td>{{ pedido.ultimo_envio | date:"Y-m-d H:i"}}</td>
                     <td><a href="{% url 'editar_registro' pedido.pk %}"><i class="bi bi-pencil"></i></a>
-                        <a href="{% url 'enviar_email_registro' pedido.pk %}"><i class="bi bi-send"></i></a></td>
+                        <!-- <a href="{% url 'enviar_email_registro' pedido.pk %}"><i class="bi bi-send"></i></a> -->
+                        <form method="post" action="{% url 'enviar_email_registro' pedido.pk %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-link"><span class="bi bi-send"></span></button>
+                        </form>
+                    
+                    </td>
                 </tr>
             {% empty %}
                 <tr>
@@ -52,5 +67,11 @@ Detalhes do Engagement
         {% csrf_token %}
         <button type="submit" class="btn btn-success">Enviar E-mails</button>
     </form>
-
+    {% if messages %}
+   <script>
+    {% for message in messages %}
+    alert("{{message}}")
+    {% endfor %}
+    </script>
+    {% endif %}
 {% endblock %}

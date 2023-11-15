@@ -15,12 +15,12 @@ class EngagementForm(forms.ModelForm):
 class CriarPedidoTerceirosForm(forms.ModelForm):
     class Meta:
         model = PedidoTerceiros
-        fields = ['terceiro', 'conta_contabilidade', 'contacto', 'email', 'saldo_contabilidade']
+        fields = ['terceiro', 'conta_contabilidade_cliente', 'contacto', 'email', 'saldo_contabilidade_cliente']
 
 class PedidoTerceirosForm(forms.ModelForm):
     class Meta:
         model = PedidoTerceiros
-        fields = ['saldo', 'anexo']
+        fields = ['saldo_resposta_cliente', 'anexo']
 
 
 class CSVUploadForm(forms.Form):

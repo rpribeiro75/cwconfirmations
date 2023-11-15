@@ -1,7 +1,9 @@
 import io
 import csv
+import json
+import datetime
 
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse, HttpResponseRedirect
 from django.views.generic.edit import UpdateView, CreateView
 from django.views.generic.list import ListView
 from django.views.generic import DetailView
@@ -14,7 +16,7 @@ from .models import Cliente, Engagement, PedidoTerceiros
 from .forms import ClienteForm, EngagementForm, CriarPedidoTerceirosForm, PedidoTerceirosForm, CSVUploadForm, SaldoUpdateForm
 from django.http import Http404
 from django.urls import reverse_lazy, reverse
-
+from django.contrib import messages
 import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
@@ -167,13 +169,17 @@ def editar_registro(request, registro_id):
 
 
 class EnviarEmailEngagement(View):
-    def get(self, request, engagement_id):
-        engagement = get_object_or_404(Engagement, pk=engagement_id)
-        registros = engagement.pedidoterceiros_set.filter(respondido=False)  # Filtrar registros não confirmados
+    # def get(self, request, engagement_id):
+    #     engagement = get_object_or_404(Engagement, pk=engagement_id)
+    #     registros = engagement.pedidoterceiros_set.filter(respondido=False)  # Filtrar registros não confirmados
 
     def post(self, request, engagement_id):
         engagement = get_object_or_404(Engagement, pk=engagement_id)
-        registros = engagement.pedidoterceiros_set.filter(respondido=False)  # Filtrar registros não confirmados
+        registros = engagement.pedidoterceiros_set.filter(respondido=False)
+        registros_nao_enviados = engagement.pedidoterceiros_set.filter(respondido=True)
+        terceiros = []
+        for registro in registros_nao_enviados: terceiros.append(registro.terceiro)
+        mensagem = f"Para os seguintes Terceiros não foi enviado: {" ,".join(terceiros)}"
         for registro in registros:
             link_unico = registro.link_unico
             url = request.build_absolute_uri(reverse('pagina_saldo', args=[link_unico]))
@@ -206,44 +212,72 @@ class EnviarEmailEngagement(View):
             server.login(smtp_username, smtp_password)
             server.sendmail(smtp_username, registro.email, msg.as_string())
             server.quit()
-
-        return render(request, 'enviar_emails_todos.html', {'registros': registros, 'engagement': engagement})
+        
+        messages.info(request, mensagem)
+        return HttpResponseRedirect("/engagement/"+str(registro.engagement_id))
+        # return render(request, 'enviar_emails_todos.html', {'registros': registros, 'engagement': engagement})
 
 
 class EnviarEmailRegistro(View):
-    def get(self, request, registro_id):
+
+    def get (self, request, registro_id):
+        return render(request,"pagina_erro.html")
+    def post(self, request, registro_id):
         registro = get_object_or_404(PedidoTerceiros, pk=registro_id)
+        if registro.engagement.pdf_assinado:
+            # Check if the record has not been confirmed
+            if not registro.respondido:
+                # Build the unique URL for the record
+                link_unico = registro.link_unico
+                url = request.build_absolute_uri(reverse('pagina_saldo', args=[link_unico]))
 
-        # Check if the record has not been confirmed
-        if not registro.respondido:
-            # Build the unique URL for the record
-            link_unico = registro.link_unico
-            url = request.build_absolute_uri(reverse('pagina_saldo', args=[link_unico]))
+                # Create and send the email
+                msg = MIMEMultipart()
+                msg['From'] = 'cwconfirmations@sapo.pt'
+                msg['To'] = registro.email
+                msg['Subject'] = 'Confirmação de Atualização de Saldo'
+                
+                filename = registro.engagement.pdf_assinado.name.split("/")[-1]
+                attachment = open(registro.engagement.pdf_assinado.path, 'rb')
+                part = MIMEBase('application', 'octet-stream')
+                part.set_payload((attachment).read())
+                encoders.encode_base64(part)
+                part.add_header('Content-Disposition', f"attachment; filename= {filename}")
 
-            # Create and send the email
-            msg = MIMEMultipart()
-            msg['From'] = 'cwconfirmations@sapo.pt'
-            msg['To'] = registro.email
-            msg['Subject'] = 'Confirmação de Atualização de Saldo'
+                msg.attach(part)   
 
-            message = f"""
-            Olá {registro.contacto},
+                message = f"""
+                Olá {registro.contacto},
+                
+                Para confirmar a atualização de saldo, clique no link abaixo:
+                {url}
+
+                Obrigado por usar nosso serviço.
+                """
+                msg.attach(MIMEText(message, 'plain'))
+
+                server = smtplib.SMTP(smtp_server, smtp_port)
+                server.starttls()
+                server.login(smtp_username, smtp_password)
+                server.sendmail(smtp_username, registro.email, msg.as_string())
+                server.quit()
+                if PedidoTerceiros.objects.filter(pk=registro_id).first().primeiro_envio is None:
+                    PedidoTerceiros.objects.update_or_create(pk=registro_id, defaults={"primeiro_envio":datetime.datetime.now()})
+                else:
+                    PedidoTerceiros.objects.update_or_create(pk=registro_id, defaults={"ultimo_envio":datetime.datetime.now()})
+                messages.info(request, "Email enviado com sucesso")
+                return HttpResponseRedirect("/engagement/"+str(registro.engagement_id))
             
-            Para confirmar a atualização de saldo, clique no link abaixo:
-            {url}
-
-            Obrigado por usar nosso serviço.
-            """
-            msg.attach(MIMEText(message, 'plain'))
-
-            server = smtplib.SMTP(smtp_server, smtp_port)
-            server.starttls()
-            server.login(smtp_username, smtp_password)
-            server.sendmail(smtp_username, registro.email, msg.as_string())
-            server.quit()
-
-        return render(request, 'enviar_emails.html', {'registro': registro})
-
+            else:
+                messages.info(request, "Erro ao enviar e-mail. já está respondido.")
+                return HttpResponseRedirect("/engagement/"+str(registro.engagement_id))
+            
+         
+        else:
+            
+            messages.info(request, "Erro ao enviar e-mail. O Engagement não tem autorização.")
+            return HttpResponseRedirect("/engagement/"+str(registro.engagement_id))
+               
 
 
 
