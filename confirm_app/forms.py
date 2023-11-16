@@ -20,7 +20,7 @@ class CriarPedidoTerceirosForm(forms.ModelForm):
 class PedidoTerceirosForm(forms.ModelForm):
     class Meta:
         model = PedidoTerceiros
-        fields = ['saldo_resposta_cliente', 'anexo']
+        fields = ["saldo_contabilidade_cliente",'saldo_resposta_cliente', 'anexo']
 
 
 class CSVUploadForm(forms.Form):

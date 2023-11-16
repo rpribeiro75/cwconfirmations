@@ -1,8 +1,7 @@
 import io
 import csv
 import json
-import datetime
-
+from datetime import datetime
 from django.http import HttpResponse, JsonResponse, HttpResponseRedirect
 from django.views.generic.edit import UpdateView, CreateView
 from django.views.generic.list import ListView
@@ -106,6 +105,24 @@ class PedidoTerceirosCriarView(View):
         return render(request, self.template_name, {"form": form, 'engagement': engagement})
     
 
+def pedidoterceiro_editar(request, pedidoterceiro_id):
+    pedidoterceiro = get_object_or_404(PedidoTerceiros, pk=pedidoterceiro_id)
+    print(pedidoterceiro.engagement.pk)
+
+    if request.method == "POST":
+        form = PedidoTerceirosForm(request.POST, instance=pedidoterceiro)
+        if form.is_valid():
+            form.save()
+            return redirect(reverse("engagement_detail", kwargs={"pk": pedidoterceiro.engagement.pk}))
+            # return redirect("engagement_detail", pk=pedidoterceiro.engagement.pk)
+    else:
+        form = PedidoTerceirosForm(instance=pedidoterceiro)
+
+    return render(request, "pedidoterceiro_editar.html", {"form": form, "pedidoterceiro": pedidoterceiro})
+
+
+
+
 class ImportarCSVParaEngagement(View):
     template_name = 'importar_csv_engagement.html'
 
@@ -141,18 +158,7 @@ class ImportarCSVParaEngagement(View):
 #     return render(request, 'visualizar.html', {'registros': registros})
 
 
-def editar_registro(request, registro_id):
-    registro = get_object_or_404(PedidoTerceiros, pk=registro_id)
-    
-    if request.method == "POST":
-        form = PedidoTerceirosForm(request.POST, instance=registro)
-        if form.is_valid():
-            form.save()
-            return redirect('visualizar')
-    else:
-        form = PedidoTerceirosForm(instance=registro)
-    
-    return render(request, 'editar_registro.html', {'form': form, 'registro': registro})
+
 
 
 # def excluir_registro(request, registro_id):
@@ -287,7 +293,7 @@ class PaginaSaldo(View):
     def get(self, request, link_unico):
         # Verifique se o link único é válido e se corresponde a um registro existente
         try:
-            registro = PedidoTerceiros.objects.get(link_unico=link_unico, respondido=False)
+            registro = PedidoTerceiros.objects.get(link_unico=link_unico, respondido__isnull=True)
         except PedidoTerceiros.DoesNotExist:
             # Caso não exista um registro com esse link único, você pode lidar com isso adequadamente, como redirecionar para uma página de erro.
             return redirect('pagina_erro')
@@ -301,7 +307,7 @@ class PaginaSaldo(View):
     def post(self, request, link_unico):
         # Verifique se o link único é válido e se corresponde a um registro existente
         try:
-            registro = PedidoTerceiros.objects.get(link_unico=link_unico, respondido=False)
+            registro = PedidoTerceiros.objects.get(link_unico=link_unico, respondido__isnull=True)
         except PedidoTerceiros.DoesNotExist:
             # Caso não exista um registro com esse link único, você pode lidar com isso adequadamente, como redirecionar para uma página de erro.
             return redirect('pagina_erro')
@@ -314,13 +320,13 @@ class PaginaSaldo(View):
             saldo = form.cleaned_data['saldo']
             arquivo = form.cleaned_data['anexo']
 
-            registro.saldo = saldo
+            registro.saldo_resposta_cliente = saldo
             if arquivo:
                 registro.anexo = arquivo
                 
 
-            # Marque o registro como atualizado
-            registro.respondido = True
+            # Marque a data  como atualizado
+            registro.respondido = datetime.now()
             registro.save()
 
             # Redirecione para uma página de sucesso

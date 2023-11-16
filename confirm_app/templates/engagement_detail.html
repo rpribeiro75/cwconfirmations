@@ -29,9 +29,9 @@ Detalhes do Engagement
                 <th>Terceiro</th>
                 <th>Contacto</th>
                 <th>Email</th>
-                
                 <th>Data 1º Envio</th> 
-                <th>Data Último Envio</th> 
+                <th>Data Último Envio</th>
+                <th>Data Resposta</th> 
                 <th>Editar</th>
                 
             </tr>
@@ -42,10 +42,10 @@ Detalhes do Engagement
                     <td>{{ pedido.terceiro }}</td>
                     <td>{{ pedido.contacto }}</td>
                     <td>{{ pedido.email }}</td>
-                    <td>{{ pedido.anexo }}</td>
                     <td>{{ pedido.primeiro_envio | date:"Y-m-d H:i"}}</td>
                     <td>{{ pedido.ultimo_envio | date:"Y-m-d H:i"}}</td>
-                    <td><a href="{% url 'editar_registro' pedido.pk %}"><i class="bi bi-pencil"></i></a>
+                    <td>{{ pedido.respondido | date:"Y-m-d H:i"}}</td>
+                    <td><a href="{% url 'pedidoterceiro_editar' pedido.pk %}"><i class="bi bi-pencil"></i></a>
                         <!-- <a href="{% url 'enviar_email_registro' pedido.pk %}"><i class="bi bi-send"></i></a> -->
                         <form method="post" action="{% url 'enviar_email_registro' pedido.pk %}">
                         {% csrf_token %}
