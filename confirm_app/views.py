@@ -110,13 +110,17 @@ def pedidoterceiro_editar(request, pedidoterceiro_id):
     
 
     if request.method == "POST":
-        saldo_contabilidade_cliente=pedidoterceiro.saldo_contabilidade_cliente
-        saldo_resposta_cliente=pedidoterceiro.saldo_resposta_cliente
-        extrato=pedidoterceiro.anexo
-        saldo_resposta_fornecedor=request.POST.get("saldo_resposta_fornecedor")
+        # saldo_contabilidade_cliente=pedidoterceiro.saldo_contabilidade_cliente
+        # saldo_resposta_cliente=pedidoterceiro.saldo_resposta_cliente
+        # extrato=pedidoterceiro.anexo
 
+        saldo_resposta_fornecedor=request.POST.get("saldo_resposta_fornecedor")
         pedidoterceiro.saldo_resposta_fornecedor=saldo_resposta_fornecedor
-        return HttpResponseRedirect("engagement")
+
+
+        pedidoterceiro.save()
+        url = reverse('engagement_detail', kwargs={'pk': pedidoterceiro.engagement.pk})
+        return HttpResponseRedirect(url)
 
 
     return render(request, "pedidoterceiro_editar.html", {"pedidoterceiro": pedidoterceiro})
@@ -160,8 +164,6 @@ class ImportarCSVParaEngagement(View):
 
 
 
-
-
 # def excluir_registro(request, registro_id):
 #     registro = get_object_or_404(Registro, pk=registro_id)
     
@@ -182,8 +184,8 @@ class EnviarEmailEngagement(View):
 
     def post(self, request, engagement_id):
         engagement = get_object_or_404(Engagement, pk=engagement_id)
-        registros = engagement.pedidoterceiros_set.filter(respondido=False)
-        registros_nao_enviados = engagement.pedidoterceiros_set.filter(respondido=True)
+        registros = engagement.pedidoterceiros_set.filter(respondido__isnull=True)
+        registros_nao_enviados = engagement.pedidoterceiros_set.exclude(respondido__isnull=True)
         terceiros = []
         for registro in registros_nao_enviados: terceiros.append(registro.terceiro)
         mensagem = f"Para os seguintes Terceiros não foi enviado: {" ,".join(terceiros)}"
@@ -269,9 +271,9 @@ class EnviarEmailRegistro(View):
                 server.sendmail(smtp_username, registro.email, msg.as_string())
                 server.quit()
                 if PedidoTerceiros.objects.filter(pk=registro_id).first().primeiro_envio is None:
-                    PedidoTerceiros.objects.update_or_create(pk=registro_id, defaults={"primeiro_envio":datetime.datetime.now()})
+                    PedidoTerceiros.objects.update_or_create(pk=registro_id, defaults={"primeiro_envio":datetime.now()})
                 else:
-                    PedidoTerceiros.objects.update_or_create(pk=registro_id, defaults={"ultimo_envio":datetime.datetime.now()})
+                    PedidoTerceiros.objects.update_or_create(pk=registro_id, defaults={"ultimo_envio":datetime.now()})
                 messages.info(request, "Email enviado com sucesso")
                 return HttpResponseRedirect("/engagement/"+str(registro.engagement_id))
             
