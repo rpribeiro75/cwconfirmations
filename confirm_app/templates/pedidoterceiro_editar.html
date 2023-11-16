@@ -6,10 +6,18 @@ Editar Registro
 
 {% block content %}
     <h1>Editar Pedido de Terceiro</h1>
-
+    <div class="container">
     <form method="post">
         {% csrf_token %}
-        {{ form.as_p }}
+        <div class="form-group row">
+            <label for="saldo_contabilidade_cliente" class="col-sm-3 col-form-label">Saldo Contabilidade Cliente:</label>
+            <div class="col-sm-8">
+                <input type="text" readonly class="form-control-plaintext" id="saldo_contabilidade_cliente" value={{ pedidoterceiro.saldo_contabilidade_cliente }}>
+            </div>
+            
+        </div>
+    </div>
+
         <input type="submit" value="Salvar Alterações">
     </form>
 

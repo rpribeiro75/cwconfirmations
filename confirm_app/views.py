@@ -107,18 +107,19 @@ class PedidoTerceirosCriarView(View):
 
 def pedidoterceiro_editar(request, pedidoterceiro_id):
     pedidoterceiro = get_object_or_404(PedidoTerceiros, pk=pedidoterceiro_id)
-    print(pedidoterceiro.engagement.pk)
+    
 
     if request.method == "POST":
-        form = PedidoTerceirosForm(request.POST, instance=pedidoterceiro)
-        if form.is_valid():
-            form.save()
-            return redirect(reverse("engagement_detail", kwargs={"pk": pedidoterceiro.engagement.pk}))
-            # return redirect("engagement_detail", pk=pedidoterceiro.engagement.pk)
-    else:
-        form = PedidoTerceirosForm(instance=pedidoterceiro)
+        saldo_contabilidade_cliente=pedidoterceiro.saldo_contabilidade_cliente
+        saldo_resposta_cliente=pedidoterceiro.saldo_resposta_cliente
+        extrato=pedidoterceiro.anexo
+        saldo_resposta_fornecedor=request.POST.get("saldo_resposta_fornecedor")
 
-    return render(request, "pedidoterceiro_editar.html", {"form": form, "pedidoterceiro": pedidoterceiro})
+        pedidoterceiro.saldo_resposta_fornecedor=saldo_resposta_fornecedor
+        return HttpResponseRedirect("engagement")
+
+
+    return render(request, "pedidoterceiro_editar.html", {"pedidoterceiro": pedidoterceiro})
 
 
 
