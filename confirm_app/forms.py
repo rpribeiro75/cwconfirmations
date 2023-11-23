@@ -20,7 +20,7 @@ class CriarPedidoTerceirosForm(forms.ModelForm):
 class PedidoTerceirosForm(forms.ModelForm):
     class Meta:
         model = PedidoTerceiros
-        fields = ["saldo_contabilidade_cliente",'saldo_resposta_cliente', 'anexo']
+        fields = ["saldo_contabilidade_cliente",'saldo_resposta_cliente', 'anexo_resposta_cliente']
 
 
 class CSVUploadForm(forms.Form):
@@ -30,5 +30,5 @@ class CSVUploadForm(forms.Form):
 
 class SaldoUpdateForm(forms.Form):
     saldo = forms.DecimalField(label='Saldo', max_digits=10, decimal_places=2, required=True)
-    anexo = forms.FileField(label='Anexar extrato', required=False)
+    anexo_resposta_cliente = forms.FileField(label='Anexar extrato', required=False)
 

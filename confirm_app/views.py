@@ -321,11 +321,11 @@ class PaginaSaldo(View):
         if form.is_valid():
             # Atualize o registro com os dados do formulário
             saldo = form.cleaned_data['saldo']
-            arquivo = form.cleaned_data['anexo']
+            arquivo = form.cleaned_data['anexo_resposta_cliente']
 
             registro.saldo_resposta_cliente = saldo
             if arquivo:
-                registro.anexo = arquivo
+                registro.anexo_resposta_cliente = arquivo
                 
 
             # Marque a data  como atualizado
