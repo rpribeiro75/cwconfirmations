@@ -8,22 +8,65 @@ Editar Registro
     <h1>Editar Pedido de Terceiro</h1>
     <div class="container">
         <div class="container">
-            <form method="post">
+            <form method="post" class="form-horizontal">
                 {% csrf_token %}
-                <div class="form-group row">
-                    <label for="saldo_contabilidade_cliente" class="col-sm-3 col-form-label">Saldo Contabilidade Cliente:</label>
-                    <div class="col-sm-8">
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <th>Tipo</th>
+                            <th>Saldo CTB:</th>
+                            <th>Saldo Resposta:</th>
+                            <th>Extrato:</th>
+                            <th>Diferença:</th>
+                            <th>Movs. CTB:</th>
+                            <th>Movs. Terceiro:</th>
+                            <th>Dif. Final:</th>
+                            <th>Conciliado</th>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><b>Cliente</b></td>
+                                <td><input type="text" class="form-control-plaintext" readonly id="saldo_contabilidade_cliente" value="{{ pedidoterceiro.saldo_contabilidade_cliente }}"></td>
+                                <td><input type="text" class="form-control-plaintext" readonly id="saldo_resposta_cliente" value="{{ pedidoterceiro.saldo_resposta_cliente }}"></td>
+                                <td><input type="text" class="form-control-plaintext" readonly id="anexo_resposta_cliente" value="{{ pedidoterceiro.anexo_resposta_cliente }}"></td>
+                                <td><input type="text" class="form-control-plaintext" readonly id="dif_inicial_cliente" value="{{ pedidoterceiro.anexo_resposta_cliente }}"></td>
+                                <td><input type="text" class="form-input" readonly id="movsctb_cliente" value="{{ pedidoterceiro.movsctb_cliente }}"></td>
+                                <td><input type="text" class="form-input" readonly id="movsterceiro_cliente" value="{{ pedidoterceiro.movsterceiro_cliente }}"></td>
+                                <td><input type="text" class="form-control-plaintext" readonly id="dif_final_cliente" value="{{ pedidoterceiro.anexo_resposta_cliente }}"></td>
+                                <td><input type="text" class="form-check-input" id="conciliado_cliente" value="{{ pedidoterceiro.conciliado_cliente }}"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+{% comment %}                     
+                <div class="row">
+                    <div class="col">
+                        <label class="col-form-label">Cliente<label>
+                    </div>
+                    <div class="col">
                         <!-- <input type="text" readonly class="form-control-plaintext" id="saldo_contabilidade_cliente" value="{{ pedidoterceiro.saldo_contabilidade_cliente }}"> -->
                         <input type="text" class="form-control-plaintext" readonly id="saldo_contabilidade_cliente" value="{{ pedidoterceiro.saldo_contabilidade_cliente }}">
                     </div>
-
-                    <label for="saldo_resposta_fornecedor" class="col-sm-3 col-form-label">Saldo Resposta Fornecedor:</label>
-                    <div class="col-sm-8">
-                        <input type="text" id="saldo_resposta_fornecedor" name="saldo_resposta_fornecedor" value="{{ pedidoterceiro.saldo_resposta_fornecedor }}">
+                    <div class="col">
+                        <input type="text" class="form-control-plaintext" readonly id="saldo_resposta_cliente" value="{{ pedidoterceiro.saldo_resposta_cliente }}">
                     </div>
-                    <label for="extrato" class="col-sm-3 col-form-label">Extrato:</label>
-
-
+                    <div class="col">
+                        <input type="text" class="form-control-plaintext" readonly id="anexo_resposta_cliente" value="{{ pedidoterceiro.anexo_resposta_cliente }}">
+                    </div>
+                    <div class="col">
+                        <input type="text" class="form-control-plaintext" readonly id="dif_inicial_cliente" value="{{ pedidoterceiro.anexo_resposta_cliente }}">
+                    </div>
+                    <div class="col">
+                        <input type="text" class="form-input" readonly id="movsctb_cliente" value="{{ pedidoterceiro.movsctb_cliente }}">
+                    </div>
+                    <div class="col">
+                        <input type="text" class="form-input" readonly id="movsterceiro_cliente" value="{{ pedidoterceiro.movsterceiro_cliente }}">
+                    </div>
+                    <div class="col">
+                        <input type="text" class="form-control-plaintext" readonly id="dif_final_cliente" value="{{ pedidoterceiro.anexo_resposta_cliente }}">
+                    </div>
+                    <div class="col">
+                        <input type="text" class="form-check-input" id="conciliado_cliente" value="{{ pedidoterceiro.conciliado_cliente }}">
+                    </div> {% endcomment %}
                 </div>
         
                 <input type="submit" value="Salvar Alterações">
@@ -31,6 +74,7 @@ Editar Registro
         
             <a href="{% url 'engagement_detail' pedidoterceiro.engagement.pk %}">Voltar à Página do Engagement</a>
         </div>
+    </div>
         
 
 
