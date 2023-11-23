@@ -188,7 +188,7 @@ class EnviarEmailEngagement(View):
         registros_nao_enviados = engagement.pedidoterceiros_set.exclude(respondido__isnull=True)
         terceiros = []
         for registro in registros_nao_enviados: terceiros.append(registro.terceiro)
-        mensagem = f"Para os seguintes Terceiros não foi enviado: {" ,".join(terceiros)}"
+        mensagem = f"""Para os seguintes Terceiros não foi enviado: {" ,".join(terceiros)}"""
         for registro in registros:
             link_unico = registro.link_unico
             url = request.build_absolute_uri(reverse('pagina_saldo', args=[link_unico]))
