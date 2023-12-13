@@ -1,6 +1,7 @@
 import io
 import csv
 import json
+import openpyxl
 from datetime import datetime
 from django.http import HttpResponse, JsonResponse, HttpResponseRedirect
 from django.views.generic.edit import UpdateView, CreateView
@@ -126,6 +127,27 @@ def pedidoterceiro_editar(request, pedidoterceiro_id):
     return render(request, "pedidoterceiro_editar.html", {"pedidoterceiro": pedidoterceiro})
 
 
+class GenerateCSVFile(View):
+    def get(self, request):
+        # Create the Excel workbook object
+        workbook = openpyxl.Workbook()
+
+        # Create the worksheet object
+        worksheet = workbook.active
+
+        # Write the header row
+        worksheet.append(['Terceiro', 'Contacto', 'Email'])
+
+        # Save the workbook
+        workbook.save('modelo_importacao.xlsx')
+
+        # Set the Content-Disposition header for download
+        filename = 'modelo_importacao.xlsx'
+        with open('modelo_importacao.xlsx', 'rb') as f:
+            response = HttpResponse(f, content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+        response['Content-Disposition'] = f'attachment; filename="{filename}"'
+
+        return response
 
 
 class ImportarCSVParaEngagement(View):

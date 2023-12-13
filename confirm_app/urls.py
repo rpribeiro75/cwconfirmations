@@ -13,6 +13,7 @@ urlpatterns = [
     path('engagement/<int:pk>/', views.EngagementDetailView.as_view(), name='engagement_detail'),
     # path('engagement/<int:pk>/', views.EngagementDetailView.as_view(), name='engagement_detail'),^
     path('engagement/<int:pk>/importar_csv/', views.ImportarCSVParaEngagement.as_view(), name='importar_csv_engagement'),
+    path('modelo_importacao/', views.GenerateCSVFile.as_view(), name="download_csv_engagement"),
     path('engagement/<int:pk>/criar_pedido_terceiro/', views.PedidoTerceirosCriarView.as_view(), name='criar_pedido_terceiro'),
  
     path("pedidoterceiro_editar/<int:pedidoterceiro_id>/", views.pedidoterceiro_editar, name="pedidoterceiro_editar"),

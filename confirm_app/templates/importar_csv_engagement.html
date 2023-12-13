@@ -7,6 +7,15 @@ Importar CSV
 {% block content %}
 
     <h1>Importar CSV para {{ engagement.cliente }}</h1>
+
+    <p>
+        Para importar pedidos de terceiros, você pode usar o modelo de importação fornecido abaixo.
+    </p>
+
+    <a href="{% url 'download_csv_engagement' %}">
+        Download do modelo de importação
+    </a>
+
     <form method="post" enctype="multipart/form-data" action="{% url 'importar_csv_engagement' engagement.pk %}">
         {% csrf_token %}
         <label for="file">Selecione um arquivo CSV:</label>
