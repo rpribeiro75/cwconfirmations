@@ -161,3 +161,6 @@ cython_debug/
 
 # Secrets
 confirm_app/secrets.py
+
+*.csv
+*.xlsx
