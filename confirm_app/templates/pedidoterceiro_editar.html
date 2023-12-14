@@ -10,64 +10,311 @@ Editar Registro
         <div class="container">
             <form method="post" class="form-horizontal">
                 {% csrf_token %}
-                <div class="table-responsive">
-                    <table>
+                    <table class="table table-bordered justify-content-center">
                         <thead>
-                            <th>Tipo</th>
-                            <th>Saldo CTB:</th>
-                            <th>Saldo Resposta:</th>
-                            <th>Extrato:</th>
-                            <th>Diferença:</th>
-                            <th>Movs. CTB:</th>
-                            <th>Movs. Terceiro:</th>
-                            <th>Dif. Final:</th>
-                            <th>Conciliado</th>
+                            <th class="text-center align-center" scope="col">Tipo</th>
+                            <th class="text-center" scope="col">Saldo CTB:</th>
+                            <th class="text-center" scope="col">Saldo Resposta:</th>
+                            <th class="text-center" scope="col">Extrato:</th>
+                            <th class="text-center" scope="col">Diferença:</th>
+                            <th class="text-center" scope="col">Movs. CTB:</th>
+                            <th class="text-center" scope="col">Movs. Terceiro:</th>
+                            <th class="text-center" scope="col">Dif. Final:</th>
+                            <th class="text-center" scope="col">Conciliado</th>
                         </thead>
                         <tbody>
-                            <tr>
+                            <tr style="line-height: 30px">
                                 <td><b>Cliente</b></td>
-                                <td><input type="text" class="form-control-plaintext" readonly id="saldo_contabilidade_cliente" value="{{ pedidoterceiro.saldo_contabilidade_cliente }}"></td>
-                                <td><input type="text" class="form-control-plaintext" readonly id="saldo_resposta_cliente" value="{{ pedidoterceiro.saldo_resposta_cliente }}"></td>
-                                <td><input type="text" class="form-control-plaintext" readonly id="anexo_resposta_cliente" value="{{ pedidoterceiro.anexo_resposta_cliente }}"></td>
-                                <td><input type="text" class="form-control-plaintext" readonly id="dif_inicial_cliente" value="{{ pedidoterceiro.anexo_resposta_cliente }}"></td>
-                                <td><input type="text" class="form-input" readonly id="movsctb_cliente" value="{{ pedidoterceiro.movsctb_cliente }}"></td>
-                                <td><input type="text" class="form-input" readonly id="movsterceiro_cliente" value="{{ pedidoterceiro.movsterceiro_cliente }}"></td>
-                                <td><input type="text" class="form-control-plaintext" readonly id="dif_final_cliente" value="{{ pedidoterceiro.anexo_resposta_cliente }}"></td>
-                                <td><input type="text" class="form-check-input" id="conciliado_cliente" value="{{ pedidoterceiro.conciliado_cliente }}"></td>
+                                <td class="text-end"><p id="saldo_contabilidade_cliente">{{ pedidoterceiro.saldo_contabilidade_cliente }}</p></td>
+                                <td class="text-end"><p id="saldo_resposta_cliente">{{ pedidoterceiro.saldo_resposta_cliente }}</p></td>
+                                {% comment %} <td><input type="text" class="form-control-plaintext text-end" readonly id="saldo_resposta_cliente" value="{{ pedidoterceiro.saldo_resposta_cliente }}"></td> {% endcomment %}
+                                <td class="text-end">{{ pedidoterceiro.anexo_resposta_cliente }}</td>
+                                <td class="text-end"><p id="dif_inicial_cliente"></td>
+                                <td><input type="text" class="form-input text-end" id="movsctb_cliente" name="movsctb_cliente" value="{{ pedidoterceiro.movsctb_cliente }}"></td>
+                                <td><input type="text" class="form-input text-end" id="movsterceiro_cliente" name="movsterceiro_cliente" value="{{ pedidoterceiro.movsterceiro_cliente }}"></td>
+                                <td class="text-end"><p id="dif_final_cliente"></td>
+                                <td class="text-center"><span id="estado_conciliado_cliente">
+                                    {% if pedidoterceiro.conciliado_cliente == 1 %}
+                                        <i class="bi bi-check-circle"></i>
+                                    {% elif pedidoterceiro.conciliado_cliente == 0 %}
+                                        <i class="bi bi-x-circle"></i>
+                                    {% endif %}
+                                </span>
+                                    <input type="hidden" class="form-check-input text-end" id="conciliado_cliente" name="conciliado_cliente" value="{{ pedidoterceiro.conciliado_cliente }}">
+                                </td>
                             </tr>
+                            <tr style="line-height: 30px">
+                                <td><b>Cliente Títulos</b></td>
+                                <td class="text-end"><p id="saldo_contabilidade_cliente_titulos">{{ pedidoterceiro.saldo_contabilidade_cliente_titulos }}</p></td>
+                                <td class="text-end"><p id="saldo_resposta_cliente_titulos">{{ pedidoterceiro.saldo_resposta_cliente_titulos }}</p></td>
+                                {% comment %} <td><input type="text" class="form-control-plaintext text-end" readonly id="saldo_resposta_cliente_titulos" value="{{ pedidoterceiro.saldo_resposta_cliente_titulos }}"></td> {% endcomment %}
+                                <td class="text-end">{{ pedidoterceiro.anexo_resposta_cliente_titulos }}</td>
+                                <td class="text-end"><p id="dif_inicial_cliente_titulos"></td>
+                                <td><input type="text" class="form-input text-end" id="movsctb_cliente_titulos" name="movsctb_cliente_titulos" value="{{ pedidoterceiro.movsctb_cliente_titulos }}"></td>
+                                <td><input type="text" class="form-input text-end" id="movsterceiro_cliente_titulos" name="movsterceiro_cliente_titulos" value="{{ pedidoterceiro.movsterceiro_cliente_titulos }}"></td>
+                                <td class="text-end"><p id="dif_final_cliente_titulos"></td>
+                                <td class="text-center"><span id="estado_conciliado_cliente_titulos">
+                                    {% if pedidoterceiro.conciliado_cliente_titulos == 1 %}
+                                        <i class="bi bi-check-circle"></i>
+                                    {% elif pedidoterceiro.conciliado_cliente_titulos == 0 %}
+                                        <i class="bi bi-x-circle"></i>
+                                    {% endif %}
+                                </span>
+                                    <input type="hidden" class="form-check-input text-end" id="conciliado_cliente_titulos" name="conciliado_cliente_titulos" value="{{ pedidoterceiro.conciliado_cliente_titulos }}">
+                                </td>
+                            </tr>
+                            <tr style="line-height: 30px">
+                                <td><b>Fornecedor</b></td>
+                                <td class="text-end"><p id="saldo_contabilidade_fornecedor">{{ pedidoterceiro.saldo_contabilidade_fornecedor }}</p></td>
+                                <td class="text-end"><p id="saldo_resposta_fornecedor">{{ pedidoterceiro.saldo_resposta_fornecedor }}</p></td>
+                                {% comment %} <td><input type="text" class="form-control-plaintext text-end" readonly id="saldo_resposta_fornecedor" value="{{ pedidoterceiro.saldo_resposta_fornecedor }}"></td> {% endcomment %}
+                                <td class="text-end">{{ pedidoterceiro.anexo_resposta_fornecedor }}</td>
+                                <td class="text-end"><p id="dif_inicial_fornecedor"></td>
+                                <td><input type="text" class="form-input text-end" id="movsctb_fornecedor" name="movsctb_fornecedor" value="{{ pedidoterceiro.movsctb_fornecedor }}"></td>
+                                <td><input type="text" class="form-input text-end" id="movsterceiro_fornecedor" name="movsterceiro_fornecedor" value="{{ pedidoterceiro.movsterceiro_fornecedor }}"></td>
+                                <td class="text-end"><p id="dif_final_fornecedor"></td>
+                                <td class="text-center"><span id="estado_conciliado_fornecedor">
+                                    {% if pedidoterceiro.conciliado_fornecedor == 1 %}
+                                        <i class="bi bi-check-circle"></i>
+                                    {% elif pedidoterceiro.conciliado_fornecedor == 0 %}
+                                        <i class="bi bi-x-circle"></i>
+                                    {% endif %}
+                                </span>
+                                    <input type="hidden" class="form-check-input text-end" id="conciliado_fornecedor" name="conciliado_fornecedor" value="{{ pedidoterceiro.conciliado_fornecedor }}">
+                                </td>
+                            </tr>
+                            <tr style="line-height: 30px">
+                                <td><b>Fornecedor Títulos</b></td>
+                                <td class="text-end"><p id="saldo_contabilidade_fornecedor_titulos">{{ pedidoterceiro.saldo_contabilidade_fornecedor_titulos }}</p></td>
+                                <td class="text-end"><p id="saldo_resposta_fornecedor_titulos">{{ pedidoterceiro.saldo_resposta_fornecedor_titulos }}</p></td>
+                                {% comment %} <td><input type="text" class="form-control-plaintext text-end" readonly id="saldo_resposta_fornecedor_titulos" value="{{ pedidoterceiro.saldo_resposta_fornecedor_titulos }}"></td> {% endcomment %}
+                                <td class="text-end">{{ pedidoterceiro.anexo_resposta_fornecedor_titulos }}</td>
+                                <td class="text-end"><p id="dif_inicial_fornecedor_titulos"></td>
+                                <td><input type="text" class="form-input text-end" id="movsctb_fornecedor_titulos" name="movsctb_fornecedor_titulos" value="{{ pedidoterceiro.movsctb_fornecedor_titulos }}"></td>
+                                <td><input type="text" class="form-input text-end" id="movsterceiro_fornecedor_titulos" name="movsterceiro_fornecedor_titulos" value="{{ pedidoterceiro.movsterceiro_fornecedor_titulos }}"></td>
+                                <td class="text-end"><p id="dif_final_fornecedor_titulos"></td>
+                                <td class="text-center"><span id="estado_conciliado_fornecedor_titulos">
+                                    {% if pedidoterceiro.conciliado_fornecedor_titulos == 1 %}
+                                        <i class="bi bi-check-circle"></i>
+                                    {% elif pedidoterceiro.conciliado_fornecedor_titulos == 0 %}
+                                        <i class="bi bi-x-circle"></i>
+                                    {% endif %}
+                                </span>
+                                    <input type="hidden" class="form-check-input text-end" id="conciliado_fornecedor_titulos" name="conciliado_fornecedor_titulos" value="{{ pedidoterceiro.conciliado_fornecedor_titulos }}">
+                                </td>
+                            </tr>
+                            <tr style="line-height: 30px">
+                                <td><b>Outros Devedores e Credores</b></td>
+                                <td class="text-end"><p id="saldo_contabilidade_odc">{{ pedidoterceiro.saldo_contabilidade_odc }}</p></td>
+                                <td class="text-end"><p id="saldo_resposta_odc">{{ pedidoterceiro.saldo_resposta_odc }}</p></td>
+                                {% comment %} <td><input type="text" class="form-control-plaintext text-end" readonly id="saldo_resposta_odc" value="{{ pedidoterceiro.saldo_resposta_odc }}"></td> {% endcomment %}
+                                <td class="text-end">{{ pedidoterceiro.anexo_resposta_odc }}</td>
+                                <td class="text-end"><p id="dif_inicial_odc"></td>
+                                <td><input type="text" class="form-input text-end" id="movsctb_odc" name="movsctb_odc" value="{{ pedidoterceiro.movsctb_odc }}"></td>
+                                <td><input type="text" class="form-input text-end" id="movsterceiro_odc" name="movsterceiro_odc" value="{{ pedidoterceiro.movsterceiro_odc }}"></td>
+                                <td class="text-end"><p id="dif_final_odc"></td>
+                                <td class="text-center"><span id="estado_conciliado_odc">
+                                    {% if pedidoterceiro.conciliado_odc == 1 %}
+                                        <i class="bi bi-check-circle"></i>
+                                    {% elif pedidoterceiro.conciliado_odc == 0 %}
+                                        <i class="bi bi-x-circle"></i>
+                                    {% endif %}
+                                </span>
+                                    <input type="hidden" class="form-check-input text-end" id="conciliado_odc" name="conciliado_odc" value="{{ pedidoterceiro.conciliado_odc }}">
+                                </td>
+                            </tr>
+                            <tr style="line-height: 30px">
+                                <td><b>Outros</b></td>
+                                <td class="text-end"><p id="saldo_contabilidade_outros">{{ pedidoterceiro.saldo_contabilidade_outros }}</p></td>
+                                <td class="text-end"><p id="saldo_resposta_outros">{{ pedidoterceiro.saldo_resposta_outros }}</p></td>
+                                {% comment %} <td><input type="text" class="form-control-plaintext text-end" readonly id="saldo_resposta_outros" value="{{ pedidoterceiro.saldo_resposta_outros }}"></td> {% endcomment %}
+                                <td class="text-end">{{ pedidoterceiro.anexo_resposta_outros }}</td>
+                                <td class="text-end"><p id="dif_inicial_outros"></td>
+                                <td><input type="text" class="form-input text-end" id="movsctb_outros" name="movsctb_outros" value="{{ pedidoterceiro.movsctb_outros }}"></td>
+                                <td><input type="text" class="form-input text-end" id="movsterceiro_outros" name="movsterceiro_outros" value="{{ pedidoterceiro.movsterceiro_outros }}"></td>
+                                <td class="text-end"><p id="dif_final_outros"></td>
+                                <td class="text-center"><span id="estado_conciliado_outros">
+                                    {% if pedidoterceiro.conciliado_outros == 1 %}
+                                        <i class="bi bi-check-circle"></i>
+                                    {% elif pedidoterceiro.conciliado_outros == 0 %}
+                                        <i class="bi bi-x-circle"></i>
+                                    {% endif %}
+                                </span>
+                                    <input type="hidden" class="form-check-input text-end" id="conciliado_outros" name="conciliado_outros" value="{{ pedidoterceiro.conciliado_outros }}">
+                                </td>
+                            </tr>
+                            <script>
+                                // Obter referências aos campos de saldo
+                                const saldoContabilidadeCL = document.getElementById('saldo_contabilidade_cliente');
+                                const saldoRespostaCL = document.getElementById('saldo_resposta_cliente');
+                                const difInicialCL = document.getElementById('dif_inicial_cliente');
+                                const movCTBCL = document.getElementById('movsctb_cliente');
+                                const movTercCL = document.getElementById('movsterceiro_cliente');
+                                const difFinalCL = document.getElementById('dif_final_cliente');
+                                const conciliadoCL = document.getElementById('conciliado_cliente');
+                                const estadoCL = document.getElementById('estado_conciliado_cliente');
+                                const saldoContabilidadeCT = document.getElementById('saldo_contabilidade_cliente_titulos');
+                                const saldoRespostaCT = document.getElementById('saldo_resposta_cliente_titulos');
+                                const difInicialCT = document.getElementById('dif_inicial_cliente_titulos');
+                                const movCTBCT = document.getElementById('movsctb_cliente_titulos');
+                                const movTercCT = document.getElementById('movsterceiro_cliente_titulos');
+                                const difFinalCT = document.getElementById('dif_final_cliente_titulos');
+                                const conciliadoCT = document.getElementById('conciliado_cliente_titulos');
+                                const estadoCT = document.getElementById('estado_conciliado_cliente_titulos');
+                                const saldoContabilidadeFO = document.getElementById('saldo_contabilidade_fornecedor');
+                                const saldoRespostaFO = document.getElementById('saldo_resposta_fornecedor');
+                                const difInicialFO = document.getElementById('dif_inicial_fornecedor');
+                                const movCTBFO = document.getElementById('movsctb_fornecedor');
+                                const movTercFO = document.getElementById('movsterceiro_fornecedor');
+                                const difFinalFO = document.getElementById('dif_final_fornecedor');
+                                const conciliadoFO = document.getElementById('conciliado_fornecedor');
+                                const estadoFO = document.getElementById('estado_conciliado_fornecedor');
+                                const saldoContabilidadeFT = document.getElementById('saldo_contabilidade_fornecedor_titulos');
+                                const saldoRespostaFT = document.getElementById('saldo_resposta_fornecedor_titulos');
+                                const difInicialFT = document.getElementById('dif_inicial_fornecedor_titulos');
+                                const movCTBFT = document.getElementById('movsctb_fornecedor_titulos');
+                                const movTercFT = document.getElementById('movsterceiro_fornecedor_titulos');
+                                const difFinalFT = document.getElementById('dif_final_fornecedor_titulos');
+                                const conciliadoFT = document.getElementById('conciliado_fornecedor_titulos');
+                                const estadoFT = document.getElementById('estado_conciliado_fornecedor_titulos');
+                                const saldoContabilidadeODC = document.getElementById('saldo_contabilidade_odc');
+                                const saldoRespostaODC = document.getElementById('saldo_resposta_odc');
+                                const difInicialODC = document.getElementById('dif_inicial_odc');
+                                const movCTBODC = document.getElementById('movsctb_odc');
+                                const movTercODC = document.getElementById('movsterceiro_odc');
+                                const difFinalODC = document.getElementById('dif_final_odc');
+                                const conciliadoODC = document.getElementById('conciliado_odc');
+                                const estadoODC = document.getElementById('estado_conciliado_odc');
+                                const saldoContabilidadeOUT = document.getElementById('saldo_contabilidade_outros');
+                                const saldoRespostaOUT = document.getElementById('saldo_resposta_outros');
+                                const difInicialOUT = document.getElementById('dif_inicial_outros');
+                                const movCTBOUT = document.getElementById('movsctb_outros');
+                                const movTercOUT = document.getElementById('movsterceiro_outros');
+                                const difFinalOUT = document.getElementById('dif_final_outros');
+                                const conciliadoOUT = document.getElementById('conciliado_outros');
+                                const estadoOUT = document.getElementById('estado_conciliado_outros');
+                            
+                                // Calcular a diferença e exibir no campo 'dif_inicial_cliente'
+                                function calcular() {
+                                    // Converter os valores para números para fazer o cálculo
+                                    // cliente
+                                    const saldoContabilidadeValueCL = parseFloat(saldoContabilidadeCL.innerHTML);
+                                    const saldoRespostaValueCL = parseFloat(saldoRespostaCL.innerHTML);
+                                    const diferencainicialCL = saldoContabilidadeValueCL - saldoRespostaValueCL;
+                                    difInicialCL.innerHTML = diferencainicialCL.toFixed(2)
+                                    const movCTBValueCL = parseFloat(movCTBCL.value);
+                                    const movTercValueCL = parseFloat(movTercCL.value);
+                                    const diferencafinalCL = diferencainicialCL - movCTBValueCL - movTercValueCL;
+                                    difFinalCL.innerHTML = diferencafinalCL.toFixed(2)
+                                    if (diferencafinalCL == 0) {
+                                        conciliadoCL.value = 1;
+                                        estadoCL.innerHTML = '<i class="bi bi-check-circle"></i>';
+                                    } else {
+                                        conciliadoCL.value = 0;
+                                        estadoCL.innerHTML = '<i class="bi bi-x-circle"></i>';
+                                    }
+                                    // cliente titulos
+                                    const saldoContabilidadeValueCT = parseFloat(saldoContabilidadeCT.innerHTML);
+                                    const saldoRespostaValueCT = parseFloat(saldoRespostaCT.innerHTML);
+                                    const diferencainicialCT = saldoContabilidadeValueCT - saldoRespostaValueCT;
+                                    difInicialCT.innerHTML = diferencainicialCT.toFixed(2)
+                                    const movCTBValueCT = parseFloat(movCTBCT.value);
+                                    const movTercValueCT = parseFloat(movTercCT.value);
+                                    const diferencafinalCT = diferencainicialCT - movCTBValueCT - movTercValueCT;
+                                    difFinalCT.innerHTML = diferencafinalCT.toFixed(2)
+                                    if (diferencafinalCT == 0) {
+                                        conciliadoCT.value = 1;
+                                        estadoCT.innerHTML = '<i class="bi bi-check-circle"></i>';
+                                    } else {
+                                        conciliadoCT.value = 0;
+                                        estadoCT.innerHTML = '<i class="bi bi-x-circle"></i>';
+                                    }
+                                    // fornecedor
+                                    const saldoContabilidadeValueFO = parseFloat(saldoContabilidadeFO.innerHTML);
+                                    const saldoRespostaValueFO = parseFloat(saldoRespostaFO.innerHTML);
+                                    const diferencainicialFO = saldoContabilidadeValueFO - saldoRespostaValueFO;
+                                    difInicialFO.innerHTML = diferencainicialFO.toFixed(2)
+                                    const movCTBValueFO = parseFloat(movCTBFO.value);
+                                    const movTercValueFO = parseFloat(movTercFO.value);
+                                    const diferencafinalFO = diferencainicialFO - movCTBValueFO - movTercValueFO;
+                                    difFinalFO.innerHTML = diferencafinalFO.toFixed(2)
+                                    if (diferencafinalFO == 0) {
+                                        conciliadoFO.value = 1;
+                                        estadoFO.innerHTML = '<i class="bi bi-check-circle"></i>';
+                                    } else {
+                                        conciliadoFO.value = 0;
+                                        estadoFO.innerHTML = '<i class="bi bi-x-circle"></i>';
+                                    }
+                                    // fornecedor titulos
+                                    const saldoContabilidadeValueFT = parseFloat(saldoContabilidadeFT.innerHTML);
+                                    const saldoRespostaValueFT = parseFloat(saldoRespostaFT.innerHTML);
+                                    const diferencainicialFT = saldoContabilidadeValueFT - saldoRespostaValueFT;
+                                    difInicialFT.innerHTML = diferencainicialFT.toFixed(2)
+                                    const movCTBValueFT = parseFloat(movCTBFT.value);
+                                    const movTercValueFT = parseFloat(movTercFT.value);
+                                    const diferencafinalFT = diferencainicialFT - movCTBValueFT - movTercValueFT;
+                                    difFinalFT.innerHTML = diferencafinalFT.toFixed(2)
+                                    if (diferencafinalFT == 0) {
+                                        conciliadoFT.value = 1;
+                                        estadoFT.innerHTML = '<i class="bi bi-check-circle"></i>';
+                                    } else {
+                                        conciliadoFT.value = 0;
+                                        estadoFT.innerHTML = '<i class="bi bi-x-circle"></i>';
+                                    }
+                                    // odc
+                                    const saldoContabilidadeValueODC = parseFloat(saldoContabilidadeODC.innerHTML);
+                                    const saldoRespostaValueODC = parseFloat(saldoRespostaODC.innerHTML);
+                                    const diferencainicialODC = saldoContabilidadeValueODC - saldoRespostaValueODC;
+                                    difInicialODC.innerHTML = diferencainicialODC.toFixed(2)
+                                    const movCTBValueODC = parseFloat(movCTBODC.value);
+                                    const movTercValueODC = parseFloat(movTercODC.value);
+                                    const diferencafinalODC = diferencainicialODC - movCTBValueODC - movTercValueODC;
+                                    difFinalODC.innerHTML = diferencafinalODC.toFixed(2)
+                                    if (diferencafinalODC == 0) {
+                                        conciliadoODC.value = 1;
+                                        estadoODC.innerHTML = '<i class="bi bi-check-circle"></i>';
+                                    } else {
+                                        conciliadoODC.value = 0;
+                                        estadoODC.innerHTML = '<i class="bi bi-x-circle"></i>';
+                                    }
+                                    // outros
+                                    const saldoContabilidadeValueOUT = parseFloat(saldoContabilidadeOUT.innerHTML);
+                                    const saldoRespostaValueOUT = parseFloat(saldoRespostaOUT.innerHTML);
+                                    const diferencainicialOUT = saldoContabilidadeValueOUT - saldoRespostaValueOUT;
+                                    difInicialOUT.innerHTML = diferencainicialOUT.toFixed(2)
+                                    const movCTBValueOUT = parseFloat(movCTBOUT.value);
+                                    const movTercValueOUT = parseFloat(movTercOUT.value);
+                                    const diferencafinalOUT = diferencainicialOUT - movCTBValueOUT - movTercValueOUT;
+                                    difFinalOUT.innerHTML = diferencafinalOUT.toFixed(2)
+                                    if (diferencafinalOUT == 0) {
+                                        conciliadoOUT.value = 1;
+                                        estadoOUT.innerHTML = '<i class="bi bi-check-circle"></i>';
+                                    } else {
+                                        conciliadoOUT.value = 0;
+                                        estadoOUT.innerHTML = '<i class="bi bi-x-circle"></i>';
+                                    }
+                                }
+
+                                movCTBCL.addEventListener('input', calcular);
+                                movTercCL.addEventListener('input', calcular);
+                                movCTBCT.addEventListener('input', calcular);
+                                movTercCT.addEventListener('input', calcular);
+                                movCTBFO.addEventListener('input', calcular);
+                                movTercFO.addEventListener('input', calcular);
+                                movCTBFT.addEventListener('input', calcular);
+                                movTercFT.addEventListener('input', calcular);
+                                movCTBODC.addEventListener('input', calcular);
+                                movTercODC.addEventListener('input', calcular);
+                                movCTBOUT.addEventListener('input', calcular);
+                                movTercOUT.addEventListener('input', calcular);
+                            
+                                // Calcular a diferença inicial quando a página é carregada
+                                calcular();
+                            </script>
+
                         </tbody>
                     </table>
-{% comment %}                     
-                <div class="row">
-                    <div class="col">
-                        <label class="col-form-label">Cliente<label>
-                    </div>
-                    <div class="col">
-                        <!-- <input type="text" readonly class="form-control-plaintext" id="saldo_contabilidade_cliente" value="{{ pedidoterceiro.saldo_contabilidade_cliente }}"> -->
-                        <input type="text" class="form-control-plaintext" readonly id="saldo_contabilidade_cliente" value="{{ pedidoterceiro.saldo_contabilidade_cliente }}">
-                    </div>
-                    <div class="col">
-                        <input type="text" class="form-control-plaintext" readonly id="saldo_resposta_cliente" value="{{ pedidoterceiro.saldo_resposta_cliente }}">
-                    </div>
-                    <div class="col">
-                        <input type="text" class="form-control-plaintext" readonly id="anexo_resposta_cliente" value="{{ pedidoterceiro.anexo_resposta_cliente }}">
-                    </div>
-                    <div class="col">
-                        <input type="text" class="form-control-plaintext" readonly id="dif_inicial_cliente" value="{{ pedidoterceiro.anexo_resposta_cliente }}">
-                    </div>
-                    <div class="col">
-                        <input type="text" class="form-input" readonly id="movsctb_cliente" value="{{ pedidoterceiro.movsctb_cliente }}">
-                    </div>
-                    <div class="col">
-                        <input type="text" class="form-input" readonly id="movsterceiro_cliente" value="{{ pedidoterceiro.movsterceiro_cliente }}">
-                    </div>
-                    <div class="col">
-                        <input type="text" class="form-control-plaintext" readonly id="dif_final_cliente" value="{{ pedidoterceiro.anexo_resposta_cliente }}">
-                    </div>
-                    <div class="col">
-                        <input type="text" class="form-check-input" id="conciliado_cliente" value="{{ pedidoterceiro.conciliado_cliente }}">
-                    </div> {% endcomment %}
-                </div>
+                    
         
                 <input type="submit" value="Salvar Alterações">
             </form>

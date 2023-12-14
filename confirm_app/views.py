@@ -111,16 +111,56 @@ def pedidoterceiro_editar(request, pedidoterceiro_id):
     
 
     if request.method == "POST":
-        # saldo_contabilidade_cliente=pedidoterceiro.saldo_contabilidade_cliente
-        # saldo_resposta_cliente=pedidoterceiro.saldo_resposta_cliente
-        # extrato=pedidoterceiro.anexo
+        # cliente
+        movsctb_cliente=request.POST.get("movsctb_cliente")
+        pedidoterceiro.movsctb_cliente=movsctb_cliente
+        movsterceiro_cliente=request.POST.get("movsterceiro_cliente")
+        pedidoterceiro.movsterceiro_cliente=movsterceiro_cliente
+        conciliado_cliente=request.POST.get("conciliado_cliente")
+        pedidoterceiro.conciliado_cliente=conciliado_cliente
 
-        saldo_resposta_fornecedor=request.POST.get("saldo_resposta_fornecedor")
-        pedidoterceiro.saldo_resposta_fornecedor=saldo_resposta_fornecedor
-
+        # cliente titulos
+        movsctb_cliente_titulos=request.POST.get("movsctb_cliente_titulos")
+        pedidoterceiro.movsctb_cliente_titulos=movsctb_cliente_titulos
+        movsterceiro_cliente_titulos=request.POST.get("movsterceiro_cliente_titulos")
+        pedidoterceiro.movsterceiro_cliente_titulos=movsterceiro_cliente_titulos
+        conciliado_cliente_titulos=request.POST.get("conciliado_cliente_titulos")
+        pedidoterceiro.conciliado_cliente_titulos=conciliado_cliente_titulos
+        
+        # fornecedor
+        movsctb_fornecedor=request.POST.get("movsctb_fornecedor")
+        pedidoterceiro.movsctb_fornecedor=movsctb_fornecedor
+        movsterceiro_fornecedor=request.POST.get("movsterceiro_fornecedor")
+        pedidoterceiro.movsterceiro_fornecedor=movsterceiro_fornecedor
+        conciliado_fornecedor=request.POST.get("conciliado_fornecedor")
+        pedidoterceiro.conciliado_fornecedor=conciliado_fornecedor
+        
+        # fornecedor titulos
+        movsctb_fornecedor_titulos=request.POST.get("movsctb_fornecedor_titulos")
+        pedidoterceiro.movsctb_fornecedor_titulos=movsctb_fornecedor_titulos
+        movsterceiro_fornecedor_titulos=request.POST.get("movsterceiro_fornecedor_titulos")
+        pedidoterceiro.movsterceiro_fornecedor_titulos=movsterceiro_fornecedor_titulos
+        conciliado_fornecedor_titulos=request.POST.get("conciliado_fornecedor_titulos")
+        pedidoterceiro.conciliado_fornecedor_titulos=conciliado_fornecedor_titulos
+        
+        # odc
+        movsctb_odc=request.POST.get("movsctb_odc")
+        pedidoterceiro.movsctb_odc=movsctb_odc
+        movsterceiro_odc=request.POST.get("movsterceiro_odc")
+        pedidoterceiro.movsterceiro_odc=movsterceiro_odc
+        conciliado_odc=request.POST.get("conciliado_odc")
+        pedidoterceiro.conciliado_odc=conciliado_odc
+        
+        # outros
+        movsctb_outros=request.POST.get("movsctb_outros")
+        pedidoterceiro.movsctb_outros=movsctb_outros
+        movsterceiro_outros=request.POST.get("movsterceiro_outros")
+        pedidoterceiro.movsterceiro_outros=movsterceiro_outros
+        conciliado_outros=request.POST.get("conciliado_outros")
+        pedidoterceiro.conciliado_outros=conciliado_outros
 
         pedidoterceiro.save()
-        url = reverse('engagement_detail', kwargs={'pk': pedidoterceiro.engagement.pk})
+        url = reverse('pedidoterceiro_editar', kwargs={'pedidoterceiro_id': pedidoterceiro_id})
         return HttpResponseRedirect(url)
 
 
@@ -319,12 +359,13 @@ class PaginaSaldo(View):
         # Verifique se o link único é válido e se corresponde a um registro existente
         try:
             registro = PedidoTerceiros.objects.get(link_unico=link_unico, respondido__isnull=True)
+            print(registro.engagement.id)
         except PedidoTerceiros.DoesNotExist:
             # Caso não exista um registro com esse link único, você pode lidar com isso adequadamente, como redirecionar para uma página de erro.
             return redirect('pagina_erro')
 
         # Crie uma instância do formulário para permitir que o usuário atualize o saldo
-        form = SaldoUpdateForm()
+        form = PedidoTerceirosForm()
 
         # Renderize a página com o formulário
         return render(request, self.template_name, {'form': form, 'registro': registro})
@@ -338,25 +379,14 @@ class PaginaSaldo(View):
             return redirect('pagina_erro')
 
         # Crie uma instância do formulário com os dados da solicitação POST
-        form = SaldoUpdateForm(request.POST, request.FILES)
-
+        form = PedidoTerceirosForm(request.POST, request.FILES, instance=registro)
+    
         if form.is_valid():
-            # Atualize o registro com os dados do formulário
-            saldo = form.cleaned_data['saldo']
-            arquivo = form.cleaned_data['anexo_resposta_cliente']
-
-            registro.saldo_resposta_cliente = saldo
-            if arquivo:
-                registro.anexo_resposta_cliente = arquivo
-                
-
-            # Marque a data  como atualizado
+            registro = form.save(commit=False)
             registro.respondido = datetime.now()
             registro.save()
-
-            # Redirecione para uma página de sucesso
             return redirect('pagina_sucesso')
-
+ 
         # Caso o formulário não seja válido, renderize a página novamente com o formulário e erros
         return render(request, self.template_name, {'form': form, 'registro': registro})
 

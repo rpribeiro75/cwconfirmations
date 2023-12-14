@@ -12,7 +12,7 @@ Detalhes do Engagement
     <h1>Detalhes do Engagement</h1>
 
     <p>Cliente: {{ engagement.cliente }}</p>
-    <p>Referência: {{ engagement.referencia }}</p>
+    <p>Referência: {{ engagement.engagement_referencia }}</p>
     <p>Autorização: {{ engagement.pdf_assinado }}</p>
 
 
@@ -26,13 +26,14 @@ Detalhes do Engagement
     <table class="table">
         <thead>
             <tr>
-                <th>Terceiro</th>
-                <th>Contacto</th>
-                <th>Email</th>
-                <th>Data 1º Envio</th> 
-                <th>Data Último Envio</th>
-                <th>Data Resposta</th> 
-                <th>Editar</th>
+                <th scope="col">Terceiro</th>
+                <th scope="col">Contacto</th>
+                <th scope="col">Email</th>
+                <th scope="col">Data 1º Envio</th> 
+                <th scope="col">Data Último Envio</th>
+                <th scope="col">Data Resposta</th> 
+                <th scope="col">Estado Conciliação</th>
+                <th scope="col">Editar</th>
                 
             </tr>
         </thead>
@@ -45,11 +46,17 @@ Detalhes do Engagement
                     <td>{{ pedido.primeiro_envio | date:"Y-m-d H:i"}}</td>
                     <td>{{ pedido.ultimo_envio | date:"Y-m-d H:i"}}</td>
                     <td>{{ pedido.respondido | date:"Y-m-d H:i"}}</td>
+                    <td>{% if pedido.conciliado_cliente == 1 and pedido.conciliado_cliente_titulos == 1 and pedido.conciliado_fornecedor == 1 and pedido.conciliado_fornecedor_titulos == 1 and pedido.conciliado_odc == 1 and pedido.conciliado_outros == 1 %}
+                        <i class="bi bi-check-circle"></i>
+                        {% else %}
+                        <i class="bi bi-x-circle"></i>
+                        {% endif %}
+                    </td>
                     <td><a href="{% url 'pedidoterceiro_editar' pedido.pk %}"><i class="bi bi-pencil"></i></a>
                         <!-- <a href="{% url 'enviar_email_registro' pedido.pk %}"><i class="bi bi-send"></i></a> -->
                         <form method="post" action="{% url 'enviar_email_registro' pedido.pk %}">
                         {% csrf_token %}
-                        <button type="submit" class="btn btn-link"><span class="bi bi-send"></span></button>
+                        <button type="submit" class="btn btn-link btn-sm"><span class="bi bi-send"></span></button>
                         </form>
                     
                     </td>
