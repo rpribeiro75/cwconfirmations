@@ -32,7 +32,11 @@ from .secrets import smtp_server, smtp_port, smtp_username, smtp_password
 # smtp_password = "Bestino2004!"
 
 def home(request):
-    return render(request, 'home.html')
+    engagements = Engagement.objects.all()
+    pedidos = PedidoTerceiros.objects.all()
+    for i in pedidos:
+        print(i.engagement_id)
+    return render(request, 'home.html',  {'engagements': engagements, 'pedidos':pedidos})
 
 
 class ClienteCreateView(CreateView):

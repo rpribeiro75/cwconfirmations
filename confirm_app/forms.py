@@ -26,6 +26,20 @@ class PedidoTerceirosForm(forms.ModelForm):
                   'saldo_resposta_fornecedor_titulos', 'anexo_resposta_fornecedor_titulos',
                   'saldo_resposta_odc', 'anexo_resposta_odc',
                   'saldo_resposta_outros', 'anexo_resposta_outros',]
+        widgets = {
+            'saldo_resposta_cliente' : forms.TextInput(attrs={'type':'number','class':'form-control form-input','placeholder':'Insira aqui o saldo'}),
+            'anexo_resposta_cliente' : forms.TextInput(attrs={'type':'file','class':'form-control'}),
+            'saldo_resposta_cliente_titulos' : forms.TextInput(attrs={'type':'number','class':'form-control form-input'}),
+            'anexo_resposta_cliente_titulos' : forms.TextInput(attrs={'type':'file','class':'form-control'}),
+            'saldo_resposta_fornecedor' : forms.TextInput(attrs={'type':'number','class':'form-control form-input'}),
+            'anexo_resposta_fornecedor' : forms.TextInput(attrs={'type':'file','class':'form-control'}),
+            'saldo_resposta_fornecedor_titulos' : forms.TextInput(attrs={'type':'number','class':'form-control form-input'}),
+            'anexo_resposta_fornecedor_titulos' : forms.TextInput(attrs={'type':'file','class':'form-control'}),
+            'saldo_resposta_odc' : forms.TextInput(attrs={'type':'number','class':'form-control form-input'}),
+            'anexo_resposta_odc' : forms.TextInput(attrs={'type':'file','class':'form-control'}),
+            'saldo_resposta_outros' : forms.TextInput(attrs={'type':'number','class':'form-control form-input'}),
+            'anexo_resposta_outros' : forms.TextInput(attrs={'type':'file','class':'form-control'}),
+        }
 
 
 class CSVUploadForm(forms.Form):

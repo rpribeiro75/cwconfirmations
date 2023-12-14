@@ -32,15 +32,15 @@ Detalhes do Engagement
                 <th scope="col">Data 1º Envio</th> 
                 <th scope="col">Data Último Envio</th>
                 <th scope="col">Data Resposta</th> 
-                <th scope="col">Estado Conciliação</th>
-                <th scope="col">Editar</th>
-                
+                <th scope="col">Estado</th>
+                <th scope="col"></th>
+                <th scope="col"></th>
             </tr>
         </thead>
         <tbody>
             {% for pedido in engagement.pedidoterceiros_set.all %}
                 <tr>
-                    <td>{{ pedido.terceiro }}</td>
+                    <th scope="row">{{ pedido.terceiro }}</td>
                     <td>{{ pedido.contacto }}</td>
                     <td>{{ pedido.email }}</td>
                     <td>{{ pedido.primeiro_envio | date:"Y-m-d H:i"}}</td>
@@ -52,9 +52,9 @@ Detalhes do Engagement
                         <i class="bi bi-x-circle"></i>
                         {% endif %}
                     </td>
-                    <td><a href="{% url 'pedidoterceiro_editar' pedido.pk %}"><i class="bi bi-pencil"></i></a>
+                    <td><a href="{% url 'pedidoterceiro_editar' pedido.pk %}"><i class="bi bi-pencil"></i></a></td>
                         <!-- <a href="{% url 'enviar_email_registro' pedido.pk %}"><i class="bi bi-send"></i></a> -->
-                        <form method="post" action="{% url 'enviar_email_registro' pedido.pk %}">
+                    <td><form method="post" action="{% url 'enviar_email_registro' pedido.pk %}">
                         {% csrf_token %}
                         <button type="submit" class="btn btn-link btn-sm"><span class="bi bi-send"></span></button>
                         </form>

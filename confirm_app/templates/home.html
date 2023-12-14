@@ -8,6 +8,38 @@ Home
 
     <h1>Bem-vindo à sua aplicação</h1>
     <p>Esta é a página inicial da sua aplicação.</p>
+
+    {% for engagement in engagements %}
+    <h2>{{ engagement.id }} - Cliente <b>{{ engagement.cliente }}</b></h2>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Terceiro</td>
+                <th>Respondido?</td>
+                <th>Estado</td>
+            </tr>
+        <thead>
+        <tbody>
+    {% for pedido in pedidos %}
+    {% if pedido.engagement_id == engagement.id %}
+            <tr>
+                <td>{{ pedido.terceiro }}
+                {% if pedido.respondido is Null %}
+                <td>Não</td>
+                {% else %}
+                <td>Sim</td>
+                <td>{% if pedido.conciliado_cliente == 1 and pedido.conciliado_cliente_titulos == 1 and pedido.conciliado_fornecedor == 1 and pedido.conciliado_fornecedor_titulos == 1 and pedido.conciliado_odc == 1 and pedido.conciliado_outros == 1 %}
+                    <i class="bi bi-check-circle"></i>
+                    {% else %}
+                    <i class="bi bi-x-circle"></i>
+                    {% endif %}{% endif %}</td>
+            </tr>
+    {% else %}
+    {% endif %}
+    {% endfor %}
+        </tbody>
+    </table>
+    {% endfor %}
     <a href="{% url 'cliente_criar' %}">Criar novo Cliente</a>
 
 {% endblock %}
