@@ -34,8 +34,6 @@ from .secrets import smtp_server, smtp_port, smtp_username, smtp_password
 def home(request):
     engagements = Engagement.objects.all()
     pedidos = PedidoTerceiros.objects.all()
-    for i in pedidos:
-        print(i.engagement_id)
     return render(request, 'home.html',  {'engagements': engagements, 'pedidos':pedidos})
 
 
@@ -180,7 +178,7 @@ class GenerateCSVFile(View):
         worksheet = workbook.active
 
         # Write the header row
-        worksheet.append(['Terceiro', 'Contacto', 'Email'])
+        worksheet.append(['Terceiro', 'Contacto', 'Email', 'Conta', 'Saldo'])
 
         # Save the workbook
         workbook.save('modelo_importacao.xlsx')
@@ -216,7 +214,9 @@ class ImportarCSVParaEngagement(View):
                     engagement=engagement,
                     terceiro=column[0],
                     contacto=column[1],
-                    email=column[2]
+                    email=column[2],
+                    conta=column[3],
+                    saldo=column[4],
                 )
             return redirect('engagement_detail', pk=pk)
 
