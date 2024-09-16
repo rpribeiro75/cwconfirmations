@@ -165,3 +165,4 @@ confirm_app/secrets.py
 *.csv
 *.xlsx
 arquivos/*
+pdfs_assinados/*
