@@ -45,6 +45,15 @@ class Empresa(models.Model):
           return (licenca.data_fim - timezone.now().date()).days
       return 0
 
+class UserProfile(models.Model):
+  user = models.OneToOneField(User, on_delete=models.CASCADE)
+  empresa = models.ForeignKey('Empresa', on_delete=models.SET_NULL, null=True)
+  telefone = models.CharField(max_length=20, blank=True)
+  cargo = models.CharField(max_length=100, blank=True)
+
+  def __str__(self):
+      return self.user.username
+
 class Licenca(models.Model):
   empresa = models.ForeignKey(Empresa, on_delete=models.CASCADE, related_name='licencas')
   max_engagements = models.PositiveIntegerField()

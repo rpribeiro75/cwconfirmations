@@ -12,7 +12,7 @@ from django.views import View
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
 from django.core.files.base import ContentFile
-from .models import Cliente, Engagement, PedidoTerceiros
+from .models import Cliente, Engagement, PedidoTerceiros, UserProfile
 from .forms import ClienteForm, EngagementForm, CriarPedidoTerceirosForm, PedidoTerceirosForm, CSVUploadForm, SaldoUpdateForm
 from django.http import Http404
 from django.urls import reverse_lazy, reverse
@@ -58,10 +58,14 @@ def home(request):
     return render(request, 'home.html',  {'engagements': engagements, 'pedidos':pedidos})
 
 class ClienteCreateView(LoginRequiredMixin, CreateView):
-    model = Cliente
-    form_class = ClienteForm
-    template_name = 'cliente_criar.html'
-    success_url = reverse_lazy('cliente_list')
+  model = Cliente
+  form_class = ClienteForm
+  template_name = 'cliente_criar.html'
+  success_url = reverse_lazy('cliente_list')
+
+  def form_valid(self, form):
+      form.instance.empresa = self.request.user.empresa
+      return super().form_valid(form)
 
 class ClienteListView(LoginRequiredMixin, ListView):
     model = Cliente

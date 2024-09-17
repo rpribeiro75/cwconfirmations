@@ -6,6 +6,18 @@ class ClienteForm(forms.ModelForm):
     class Meta:
         model = Cliente
         fields = ['cliente_nome', 'cliente_codigo']
+        
+    def __init__(self, *args, **kwargs):
+        self.empresa = kwargs.pop('empresa', None)
+        super().__init__(*args, **kwargs)
+
+    def save(self, commit=True):
+        instance = super().save(commit=False)
+        if self.empresa:
+            instance.empresa = self.empresa
+        if commit:
+            instance.save()
+        return instance
 
 class EngagementForm(forms.ModelForm):
     class Meta:
