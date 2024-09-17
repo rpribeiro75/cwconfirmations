@@ -2,7 +2,9 @@
 
 {% block content %}
 
-<!-- <h1>Criar Novo Engagement para {{ cliente.cliente_nome }}</h1>
+{% if user.empresa.pode_criar_engagement %}
+
+<h1>Criar Novo Engagement para {{ cliente.cliente_nome }}</h1>
 
 {% if cliente %}
     <form method="post" enctype="multipart/form-data" action="{% url 'engagement_criar' cliente_pk=cliente.pk %}">
@@ -14,7 +16,11 @@
 
     <a href="{% url 'cliente_detail' cliente_pk=cliente.pk %}">Voltar para Detalhes do Cliente</a>
 {% else %}
-    <p>Cliente não encontrado.</p> -->
+    <p>Cliente não encontrado.</p>
+{% endif %}
+
+{% else %}
+    <p>Limite de engagements atingido. Por favor, atualize sua licença.</p>
 {% endif %}
 
 {% endblock %}

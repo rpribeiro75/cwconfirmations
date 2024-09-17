@@ -11,6 +11,13 @@ class EngagementForm(forms.ModelForm):
     class Meta:
         model = Engagement
         fields = ["engagement_nome",'engagement_referencia', "pdf_assinado"]
+        
+    def clean(self):
+        cleaned_data = super().clean()
+        cliente = cleaned_data.get('cliente')
+        if cliente and not cliente.empresa.pode_criar_engagement():
+            raise forms.ValidationError("Limite de engagements atingido ou licença inválida.")
+        return cleaned_data
 
 class CriarPedidoTerceirosForm(forms.ModelForm):
     class Meta:

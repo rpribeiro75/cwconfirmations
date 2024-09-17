@@ -17,6 +17,9 @@ from .forms import ClienteForm, EngagementForm, CriarPedidoTerceirosForm, Pedido
 from django.http import Http404
 from django.urls import reverse_lazy, reverse
 from django.contrib import messages
+from django.contrib.auth import authenticate, login
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.decorators import login_required
 import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
@@ -31,63 +34,91 @@ from .secrets import smtp_server, smtp_port, smtp_username, smtp_password
 # smtp_username = "cwconfirmations@sapo.pt"
 # smtp_password = "Bestino2004!"
 
+def login_view(request):
+  if request.method == 'POST':
+      username = request.POST.get('username')
+      password = request.POST.get('password')
+      
+      if not username or not password:
+          return render(request, 'login.html', {'error': 'Por favor, forneça username e password.'})
+      
+      user = authenticate(request, username=username, password=password)
+      if user is not None:
+          login(request, user)
+          return redirect('home')  # ou qualquer outra página após o login
+      else:
+          return render(request, 'login.html', {'error': 'Credenciais inválidas.'})
+  
+  return render(request, 'login.html')
+
+@login_required
 def home(request):
     engagements = Engagement.objects.all()
     pedidos = PedidoTerceiros.objects.all()
     return render(request, 'home.html',  {'engagements': engagements, 'pedidos':pedidos})
 
-
-class ClienteCreateView(CreateView):
+class ClienteCreateView(LoginRequiredMixin, CreateView):
     model = Cliente
     form_class = ClienteForm
     template_name = 'cliente_criar.html'
     success_url = reverse_lazy('cliente_list')
 
-
-class ClienteListView(ListView):
+class ClienteListView(LoginRequiredMixin, ListView):
     model = Cliente
     template_name = 'cliente_list.html'
     context_object_name = 'clientes'  
 
-class ClienteDetailView(DetailView):
+class ClienteDetailView(LoginRequiredMixin, DetailView):
     model = Cliente
     template_name = 'cliente_detail.html'
     context_object_name = 'cliente'
-
+    
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['form'] = EngagementForm()  # Adiciona o formulário de engagement ao contexto
         return context
 
 
-class EngagementCreateView(CreateView):
+class EngagementCreateView(LoginRequiredMixin, CreateView):
     model = Engagement
     form_class = EngagementForm
     # template_name = 'engagement_criar.html'
 
     def form_valid(self, form):
-        form.instance.cliente_id = self.kwargs['cliente_pk']
-        return super().form_valid(form)
+        try:
+            empresa = form.instance.cliente.empresa
+            form.instance.cliente_id = self.kwargs['cliente_pk']
+            if not empresa.pode_criar_engagement():
+                messages.error(self.request, "Não é possível criar mais engagements. Verifique sua licença.")
+                return self.form_invalid(form)
+            return super().form_valid(form)
+        except ValidationError as e:
+            messages.error(self.request, str(e))
+            return self.form_invalid(form)
+    
+    # def form_valid(self, form):
+    #     form.instance.cliente_id = self.kwargs['cliente_pk']
+    #     return super().form_valid(form)
 
     def get_success_url(self):
         return reverse_lazy('cliente_detail', kwargs={'pk': self.kwargs['cliente_pk']})
 
-class EngagementUpdateView(UpdateView):
+class EngagementUpdateView(LoginRequiredMixin, UpdateView):
     model = Engagement
     fields = ['cliente', 'engagement_referencia', "pdf_assinado"]
     template_name = 'engagement_form.html'
 
-class EngagementListView(ListView):
+class EngagementListView(LoginRequiredMixin, ListView):
     model = Engagement
     template_name = 'engagement_list.html'
     context_object_name = 'engagements'
 
-class EngagementDetailView(DetailView):
+class EngagementDetailView(LoginRequiredMixin, DetailView):
     model = Engagement
     template_name = 'engagement_detail.html'
     context_object_name = 'engagement'
 
-class PedidoTerceirosCriarView(View):
+class PedidoTerceirosCriarView(LoginRequiredMixin, View):
     template_name = 'pedido_terceiro_criar.html'
     
     def get(self, request, pk):
@@ -108,6 +139,7 @@ class PedidoTerceirosCriarView(View):
         return render(request, self.template_name, {"form": form, 'engagement': engagement})
     
 
+@login_required
 def pedidoterceiro_editar(request, pedidoterceiro_id):
     pedidoterceiro = get_object_or_404(PedidoTerceiros, pk=pedidoterceiro_id)
     
@@ -169,7 +201,7 @@ def pedidoterceiro_editar(request, pedidoterceiro_id):
     return render(request, "pedidoterceiro_editar.html", {"pedidoterceiro": pedidoterceiro})
 
 
-class GenerateCSVFile(View):
+class GenerateCSVFile(LoginRequiredMixin, View):
     def get(self, request):
         # Create the Excel workbook object
         workbook = openpyxl.Workbook()
@@ -192,7 +224,7 @@ class GenerateCSVFile(View):
         return response
 
 
-class ImportarCSVParaEngagement(View):
+class ImportarCSVParaEngagement(LoginRequiredMixin, View):
     template_name = 'importar_csv_engagement.html'
 
     def get(self, request, pk):
@@ -243,7 +275,7 @@ class ImportarCSVParaEngagement(View):
 
 
 
-class EnviarEmailEngagement(View):
+class EnviarEmailEngagement(LoginRequiredMixin, View):
     # def get(self, request, engagement_id):
     #     engagement = get_object_or_404(Engagement, pk=engagement_id)
     #     registros = engagement.pedidoterceiros_set.filter(respondido=False)  # Filtrar registros não confirmados
@@ -293,7 +325,7 @@ class EnviarEmailEngagement(View):
         # return render(request, 'enviar_emails_todos.html', {'registros': registros, 'engagement': engagement})
 
 
-class EnviarEmailRegistro(View):
+class EnviarEmailRegistro(LoginRequiredMixin, View):
 
     def get (self, request, registro_id):
         return render(request,"pagina_erro.html")
