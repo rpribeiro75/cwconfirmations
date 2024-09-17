@@ -1,1 +1,1 @@
-default_app_config = 'your_app_name.apps.YourAppConfig'
+default_app_config = 'confirm_app.apps.YourAppConfig'

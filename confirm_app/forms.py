@@ -20,16 +20,21 @@ class ClienteForm(forms.ModelForm):
         return instance
 
 class EngagementForm(forms.ModelForm):
-    class Meta:
-        model = Engagement
-        fields = ["engagement_nome",'engagement_referencia', "pdf_assinado"]
-        
-    def clean(self):
-        cleaned_data = super().clean()
-        cliente = cleaned_data.get('cliente')
-        if cliente and not cliente.empresa.pode_criar_engagement():
-            raise forms.ValidationError("Limite de engagements atingido ou licença inválida.")
-        return cleaned_data
+  class Meta:
+      model = Engagement
+      fields = ["cliente", "engagement_nome", 'engagement_referencia', "pdf_assinado"]
+      
+  def __init__(self, *args, **kwargs):
+      empresa = kwargs.pop('empresa', None)
+      super().__init__(*args, **kwargs)
+      if empresa:
+          self.fields['cliente'].queryset = Cliente.objects.filter(empresa=empresa)
+          self.fields['cliente'].widget.attrs['readonly'] = True
+          self.fields['cliente'].widget.attrs['disabled'] = True
+
+  def clean_cliente(self):
+      # Garante que o cliente não seja alterado no formulário
+      return self.initial.get('cliente')
 
 class CriarPedidoTerceirosForm(forms.ModelForm):
     class Meta:

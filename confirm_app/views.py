@@ -4,6 +4,7 @@ import json
 import openpyxl
 from datetime import datetime
 from django.http import HttpResponse, JsonResponse, HttpResponseRedirect
+from django.core.exceptions import ValidationError
 from django.views.generic.edit import UpdateView, CreateView
 from django.views.generic.list import ListView
 from django.views.generic import DetailView
@@ -64,7 +65,7 @@ class ClienteCreateView(LoginRequiredMixin, CreateView):
   success_url = reverse_lazy('cliente_list')
 
   def form_valid(self, form):
-      form.instance.empresa = self.request.user.empresa
+      form.instance.empresa = get_object_or_404(UserProfile, user=self.request.user.id).empresa
       return super().form_valid(form)
 
 class ClienteListView(LoginRequiredMixin, ListView):
@@ -84,28 +85,28 @@ class ClienteDetailView(LoginRequiredMixin, DetailView):
 
 
 class EngagementCreateView(LoginRequiredMixin, CreateView):
-    model = Engagement
-    form_class = EngagementForm
-    # template_name = 'engagement_criar.html'
+  model = Engagement
+  form_class = EngagementForm
+  template_name = 'engagement_criar.html'
+  success_url = reverse_lazy('engagement_list')
 
-    def form_valid(self, form):
-        try:
-            empresa = form.instance.cliente.empresa
-            form.instance.cliente_id = self.kwargs['cliente_pk']
-            if not empresa.pode_criar_engagement():
-                messages.error(self.request, "Não é possível criar mais engagements. Verifique sua licença.")
-                return self.form_invalid(form)
-            return super().form_valid(form)
-        except ValidationError as e:
-            messages.error(self.request, str(e))
-            return self.form_invalid(form)
-    
-    # def form_valid(self, form):
-    #     form.instance.cliente_id = self.kwargs['cliente_pk']
-    #     return super().form_valid(form)
+  def get_form_kwargs(self):
+      kwargs = super().get_form_kwargs()
+      user_profile = get_object_or_404(UserProfile, user=self.request.user)
+      kwargs['empresa'] = user_profile.empresa
+      return kwargs
 
-    def get_success_url(self):
-        return reverse_lazy('cliente_detail', kwargs={'pk': self.kwargs['cliente_pk']})
+  def get_initial(self):
+      initial = super().get_initial()
+      user_profile = get_object_or_404(UserProfile, user=self.request.user)
+      cliente = Cliente.objects.filter(empresa=user_profile.empresa).first()
+      if cliente:
+          initial['cliente'] = cliente
+      return initial
+
+  def form_valid(self, form):
+      form.instance.cliente = form.cleaned_data['cliente']
+      return super().form_valid(form)
 
 class EngagementUpdateView(LoginRequiredMixin, UpdateView):
     model = Engagement
